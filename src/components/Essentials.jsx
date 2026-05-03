@@ -4,7 +4,7 @@ const baseItems = [
   { title: "Casual Wear", img: "/a.jpg" },
   { title: "Formal Wear", img: "/p.jpg" },
   { title: "Street Style", img: "/k.jpg" },
-  { title: "Outerwear", img: "/d.jpg" },
+  { title: "Outerwear", img: "/ss.jpg" },
   { title: "Accessories", img: "/e.jpg" },
   { title: "New Collection", img: "/k.jpg" },
 ];
