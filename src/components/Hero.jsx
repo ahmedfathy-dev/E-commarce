@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Hero() {
   return (
@@ -28,11 +29,11 @@ function Hero() {
             </p>
 
             {/* الأزرار */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 text-lg sm:text-xl md:text-2xl animate-fadeInUp delay-500">
+            <div className="mt-8 flex flex-col sm:flex-row gap-4 text-lg sm:text-x1 md:text-2xl animate-fadeInUp delay-500">
               
-              <button className="px-6 py-3 bg-gray-700 text-white rounded-2xl hover:scale-105 hover:shadow-lg transition duration-300">
+              <Link to="/shop" className="px-6 py-3 bg-gray-700 text-white rounded-2xl hover:scale-105 hover:shadow-lg transition duration-300">
                 Shop Now
-              </button>
+              </Link>
 
               <button className="px-6 py-3 border border-gray-700 text-gray-700 rounded-2xl hover:scale-105 hover:bg-gray-700 hover:text-white transition duration-300">
                 New Araivel
