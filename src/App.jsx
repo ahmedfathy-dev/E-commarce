@@ -35,7 +35,6 @@ function App() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/Collection" element={<Collections />} />
         <Route path="/sale" element={<SaleSections />} />
-        <Route path="/Lookbook" element={<SaleSections />} />
         <Route path="/sale" element={<SaleSections />} />
         <Route path="/Book" element={<Book/>} />
         <Route path="/Footer" element={<Footer/>} />

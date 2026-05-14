@@ -8,7 +8,7 @@ function Hero() {
         <div
           className="min-h-screen bg-cover w-full flex items-center"
           style={{
-            backgroundImage: "url('gg.jpg')",
+            backgroundImage: "url('c.jpg')",
           }}
         >
           {/* المحتوى */}
@@ -35,9 +35,9 @@ function Hero() {
                 Shop Now
               </Link>
 
-              <button className="px-6 py-3 border border-gray-700 text-gray-700 rounded-2xl hover:scale-105 hover:bg-gray-700 hover:text-white transition duration-300">
+              <Link to="/shop" className="px-6 py-3 border border-gray-700 text-gray-700 rounded-2xl hover:scale-105 hover:bg-gray-700 hover:text-white transition duration-300">
                 New Araivel
-              </button>
+              </Link>
 
             </div>
           </div>

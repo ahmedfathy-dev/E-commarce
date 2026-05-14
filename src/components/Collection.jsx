@@ -5,7 +5,6 @@ function Collection() {
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
 
     async function fetchProducts() {

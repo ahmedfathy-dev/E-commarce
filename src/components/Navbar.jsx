@@ -11,7 +11,7 @@ export default function Navbar() {
       <div  className="flex items-center gap-3">
       
         <Link to="/" className="font-bold text-4xl text-gray-300">
-girls
+MANS
         </Link>
       </div>
 
