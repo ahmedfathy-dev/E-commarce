@@ -49,7 +49,7 @@ function Collection() {
             <img
               src={item.image}
               alt=""
-              className="h-64 object-contain mb-4"
+              className="h-50 object-contain mb-4"
             />
 
             <h3 className="font-semibold">

@@ -12,7 +12,7 @@ function Essentials() {
   const [products, setProducts] = useState([]);
   const [centerIndex, setCenterIndex] = useState(0);
 
-  // 🔥 Fetch API
+  //  Fetch API
 
   useEffect(() => {
 
@@ -22,7 +22,7 @@ function Essentials() {
 
         const data = await getProducts();
 
-        // 👇 نكرر المنتجات عشان يبقى infinite
+        //  نكرر المنتجات عشان يبقى infinite
         setProducts([...data, ...data]);
 
       } catch (error) {
@@ -192,7 +192,7 @@ function Essentials() {
               <img
                 src={item.image}
                 alt={item.title}
-                className="w-full h-[260px] object-cover"
+                className="w-full h-[250px] object-cover"
               />
 
             </div>
