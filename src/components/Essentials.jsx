@@ -11,7 +11,12 @@ function Essentials() {
 
   const [products, setProducts] = useState([]);
   const [centerIndex, setCenterIndex] = useState(0);
-
+const fallbackImages = [
+  "/ss.jpg",
+  "/e.jpg",
+  "/jacket.jpg",
+  "/hoodie.jpg",
+];
   //  Fetch API
 
   useEffect(() => {
@@ -71,7 +76,7 @@ function Essentials() {
 
   }, [products]);
 
-  // 🎯 تحديد الكارد اللي في النص
+  //  تحديد الكارد اللي في النص
 
   const updateCenter = () => {
 
@@ -189,11 +194,15 @@ function Essentials() {
 
             <div className="rounded-xl overflow-hidden">
 
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-[250px] object-cover"
-              />
+            <img
+  src={
+    item.image
+      ? item.image
+      : fallbackImages[index % fallbackImages.length]
+  }
+  alt={item.title}
+  className="w-full h-[250px] object-cover"
+/>
 
             </div>
 

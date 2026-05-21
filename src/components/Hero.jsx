@@ -12,7 +12,7 @@ function Hero() {
           }}
         >
           {/* المحتوى */}
-          <div className="px-6 sm:px-10 md:px-16 w-full text-gray-500">
+          <div className="px-6 sm:px-10 md:px-16 w-full text-gray-700">
             
             {/* العنوان */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold animate-fadeInUp">

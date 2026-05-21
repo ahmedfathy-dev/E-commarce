@@ -5,7 +5,12 @@ function Collection() {
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const fallbackImages = [
+  "/ss.jpg",
+  "/e.jpg",
+  "/jacket.jpg",
+  "/hoodie.jpg",
+];
   useEffect(() => {
 
     async function fetchProducts() {
@@ -76,27 +81,7 @@ function Collection() {
       <p className="mt-4 text-gray-500 text-center font-bold">
         Discover exclusive deals on our latest collection
       </p>
-   {/* 🔥 Button */}
 
-      <div className="flex justify-center mb-8 pt-10">
-
-        <button
-          onClick={addProduct}
-          className="
-          bg-black
-          text-white
-          px-6
-          py-3
-          rounded-xl
-          hover:scale-105
-          transition
-          duration-300
-          "
-        >
-          Add Product
-        </button>
-
-      </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch py-8">
 
         {products.map((item) => (
@@ -117,11 +102,15 @@ function Collection() {
             "
           >
 
-            <img
-              src={item.image}
-              alt=""
-              className="h-64 object-contain mb-4"
-            />
+       <img
+  src={
+    item.image
+      ? item.image
+      : fallbackImages[item.id % fallbackImages.length]
+  }
+  alt=""
+  className="h-64 object-contain mb-4"
+/>
 
             <h3 className="font-semibold">
               {item.title}

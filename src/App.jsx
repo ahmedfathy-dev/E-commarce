@@ -168,7 +168,6 @@ function App() {
 
         <Route path="/Book" element={<Book />} />
 
-        <Route path="/Footer" element={<Footer />} />
 
       </Routes>
     </>

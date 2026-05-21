@@ -22,7 +22,7 @@ function Essentials() {
 
         const data = await getProducts();
 
-        // 👇 نكرر المنتجات عشان يبقى infinite
+        // نكرر المنتجات عشان يبقى infinite
         setProducts([...data, ...data]);
 
       } catch (error) {
@@ -184,9 +184,8 @@ function Essentials() {
               index === centerIndex
                 ? "scale-110 shadow-2xl z-20"
                 : "scale-95 opacity-70 z-10"
-            }`}
+          }`}
           >
-
             <div className="rounded-xl overflow-hidden">
 
               <img

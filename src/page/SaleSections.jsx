@@ -18,7 +18,7 @@ function SaleSection() {
 
         console.log(data);
 
-        // 👇 نضيف Discount وهمي
+        //  نضيف Discount  وهمي
         const productsWithDiscount = Array.isArray(data)
           ? data.map((item, index) => ({
 
@@ -32,24 +32,15 @@ function SaleSection() {
                   : index % 2 === 0
                   ? "-25%"
                   : "-20%",
-
             }))
           : [];
-
         setSaleItems(productsWithDiscount);
-
       } catch (error) {
-
         console.log(error);
-
       } finally {
-
         setLoading(false);
-
       }
-
     }
-
     fetchProducts();
 
   }, []);
@@ -97,7 +88,6 @@ function SaleSection() {
               className="relative bg-white rounded-2xl p-5 md:p-6 shadow-md hover:shadow-xl transition-all duration-300 group animate-fadeUp will-change-transform"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
-
               {/* Discount Badge */}
 
               <span className="absolute top-4 left-4 bg-pink-500 text-white text-xs md:text-sm px-3 py-1 rounded-full shadow-sm">
@@ -105,7 +95,6 @@ function SaleSection() {
                 {item.discount}
 
               </span>
-
               {/* Image */}
 
               <div className="overflow-hidden rounded-xl">
