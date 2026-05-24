@@ -12,8 +12,17 @@ function Essentials() {
   const [products, setProducts] = useState([]);
   const [centerIndex, setCenterIndex] = useState(0);
 
-  // 🔥 Fetch API
+  // صور بديلة
+  const fallbackImages = [
+    "/ss.jpg",
+    "/aa.jpg",
+    "/a.jpg",
+    "/e.jpg",
+    "/k.jpg",
+    "/p.jpg",
+  ];
 
+  // Fetch API
   useEffect(() => {
 
     async function fetchProducts() {
@@ -22,7 +31,7 @@ function Essentials() {
 
         const data = await getProducts();
 
-        // نكرر المنتجات عشان يبقى infinite
+        // تكرار المنتجات للـ infinite scroll
         setProducts([...data, ...data]);
 
       } catch (error) {
@@ -37,11 +46,12 @@ function Essentials() {
 
   }, []);
 
-  // 🔥 Auto scroll
-
+  // Auto Scroll
   useEffect(() => {
 
     const container = scrollRef.current;
+
+    if (!container || products.length === 0) return;
 
     const speed = 0.5;
 
@@ -49,10 +59,16 @@ function Essentials() {
 
     const animate = () => {
 
-      if (!container || isDown.current) return;
+      if (!container || isDown.current) {
+
+        animation = requestAnimationFrame(animate);
+        return;
+
+      }
 
       container.scrollLeft += speed;
 
+      // Infinite loop
       if (container.scrollLeft >= container.scrollWidth / 2) {
 
         container.scrollLeft = container.scrollWidth / 4;
@@ -71,15 +87,15 @@ function Essentials() {
 
   }, [products]);
 
-  // 🎯 تحديد الكارد اللي في النص
-
+  // تحديد الكارد اللي في النص
   const updateCenter = () => {
 
     const container = scrollRef.current;
 
     if (!container) return;
 
-    const center = container.scrollLeft + container.clientWidth / 2;
+    const center =
+      container.scrollLeft + container.clientWidth / 2;
 
     const children = Array.from(container.children);
 
@@ -89,7 +105,8 @@ function Essentials() {
 
     children.forEach((child, i) => {
 
-      const box = child.offsetLeft + child.offsetWidth / 2;
+      const box =
+        child.offsetLeft + child.offsetWidth / 2;
 
       const dist = Math.abs(center - box);
 
@@ -107,8 +124,7 @@ function Essentials() {
 
   };
 
-  // 🖱️ Drag
-
+  // Drag Functions
   const onMouseDown = (e) => {
 
     isDown.current = true;
@@ -151,54 +167,77 @@ function Essentials() {
 
   return (
 
-    <div className="px-6 py-10 pt-25 bg-[#f5f5f5] relative">
+    <div className="px-6 py-10 bg-[#f5f5f5] relative overflow-hidden pt-25">
 
       {/* Title */}
-
       <div className="flex items-center gap-4 mb-6">
 
         <h2 className="text-xl tracking-widest text-gray-500">
           ESSENTIALS
         </h2>
 
-        <div className="flex-1 h-[1px] bg-gray-500"></div>
+        <div className="flex-1 h-[1px] bg-gray-400"></div>
 
       </div>
 
-      {/* Scroll */}
-
+      {/* Scroll Container */}
       <div
         ref={scrollRef}
         onMouseDown={onMouseDown}
         onMouseLeave={onMouseLeave}
         onMouseUp={onMouseUp}
         onMouseMove={onMouseMove}
-        className="flex gap-6 p-6 overflow-x-auto no-scrollbar cursor-grab active:cursor-grabbing select-none"
+        className="
+          flex
+          gap-6
+          p-6
+          overflow-x-auto
+          no-scrollbar
+          cursor-grab
+          active:cursor-grabbing
+          select-none
+          scroll-smooth
+        "
       >
 
         {products.map((item, index) => (
 
           <div
             key={index}
-            className={`min-w-[220px] bg-white rounded-xl shadow-md transition-all duration-300 relative ${
-              index === centerIndex
-                ? "scale-110 shadow-2xl z-20"
-                : "scale-95 opacity-70 z-10"
-          }`}
+            className={`
+              min-w-[220px]
+              bg-white
+              rounded-2xl
+              shadow-md
+              transition-all
+              duration-300
+              overflow-hidden
+              ${
+                index === centerIndex
+                  ? "scale-110 shadow-2xl z-20"
+                  : "scale-95 opacity-70 z-10"
+              }
+            `}
           >
-            <div className="rounded-xl overflow-hidden">
 
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-[260px] object-cover"
-              />
+            {/* Product Image */}
+            <img
+              src={
+                item.image ||
+                fallbackImages[index % fallbackImages.length]
+              }
+              alt={item.title}
+              onError={(e) => {
+                e.target.src =
+                  fallbackImages[index % fallbackImages.length];
+              }}
+              className="w-full h-[250px] object-cover"
+            />
 
-            </div>
-
+            {/* Product Info */}
             <div className="p-4 text-center">
 
-              <p className="text-gray-700 font-medium">
+              <p className="text-gray-700 font-semibold">
                 {item.title}
               </p>
 

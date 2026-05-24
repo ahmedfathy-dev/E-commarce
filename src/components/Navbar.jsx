@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
+import toast from "react-hot-toast";
+
 import { SiIlovepdf } from "react-icons/si";
 import { CiSearch } from "react-icons/ci";
 
 import { HiMenuAlt3 } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 
-export default function Navbar({ filterByCategory }) {
+export default function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -25,6 +27,9 @@ export default function Navbar({ filterByCategory }) {
 
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Categories State
+  const [categories, setCategories] = useState([]);
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -32,6 +37,35 @@ export default function Navbar({ filterByCategory }) {
     if (token) {
       setIsLoggedIn(true);
     }
+
+  }, []);
+
+  // Fetch Categories
+  useEffect(() => {
+
+    async function fetchCategories() {
+
+      try {
+
+        const response = await fetch(
+          "https://test.tsdtecheg.com/api/Allcategory"
+        );
+
+        const data = await response.json();
+
+        console.log("CATEGORIES:", data);
+
+        setCategories(data.categories || data.data || []);
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+
+    }
+
+    fetchCategories();
 
   }, []);
 
@@ -59,25 +93,35 @@ export default function Navbar({ filterByCategory }) {
 
       const data = await response.json();
 
-      console.log(data);
+      console.log("LOGIN RESPONSE:", data);
 
-      if (data.token) {
+      if (response.ok && (data.token || data.access_token)) {
 
-        localStorage.setItem("token", data.token);
+        const token = data.token || data.access_token;
+
+        localStorage.setItem("token", token);
 
         setIsLoggedIn(true);
 
         setShowLogin(false);
 
+        setEmail("");
+
+        setPassword("");
+
+        toast.success("Login Success");
+
       } else {
 
-        alert("Login Failed");
+        toast.error(data.message || "Login Failed");
 
       }
 
     } catch (error) {
 
       console.log(error);
+
+      toast.error("Server Error");
 
     }
 
@@ -89,21 +133,28 @@ export default function Navbar({ filterByCategory }) {
 
     if (password !== confirmPassword) {
 
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
+
       return;
+
     }
+
     try {
+
       const response = await fetch(
         "https://test.tsdtecheg.com/api/register",
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
           },
+
           body: JSON.stringify({
-            name,
-            email,
-            password,
+            name: name,
+            email: email,
+            password: password,
+            password_confirmation: confirmPassword,
           }),
         }
       );
@@ -112,13 +163,34 @@ export default function Navbar({ filterByCategory }) {
 
       console.log(data);
 
-      alert("Register Success");
+      if (response.ok) {
 
-      setShowRegister(false);
+        toast.success("Register Success");
+
+        setShowRegister(false);
+
+        setName("");
+
+        setEmail("");
+
+        setPassword("");
+
+        setConfirmPassword("");
+
+      } else {
+
+        toast.error(data.message || "Register Failed");
+
+      }
 
     } catch (error) {
+
       console.log(error);
+
+      toast.error("Server Error");
+
     }
+
   }
 
   function handleLogout() {
@@ -127,12 +199,15 @@ export default function Navbar({ filterByCategory }) {
 
     setIsLoggedIn(false);
 
+    toast.success("Logout Success");
+
   }
 
   return (
+
     <div className="fixed top-0 left-0 w-full z-50 py-4 px-6 md:px-10 flex items-center justify-between shadow-sm bg-white/30 backdrop-blur-md">
 
-      {/* Login Modal مودل اللوجين  */}
+      {/* Login Modal */}
       {
         showLogin && (
 
@@ -297,17 +372,31 @@ export default function Navbar({ filterByCategory }) {
           Sale
         </Link>
 
-        <select
-          onChange={(e) => filterByCategory(e.target.value)}
-          className="bg-transparent outline-none hover:text-amber-900 cursor-pointer"
-        >
-          <option value="all">Category</option>
+        {/* Categories Dropdown */}
+        <div className="relative group">
 
-          <option value="1">wenter</option>
+          <button className="hover:text-amber-900 cursor-pointer">
+            Categories
+          </button>
 
-          <option value="2">summer</option>
+          <div className="absolute hidden group-hover:flex flex-col bg-white shadow-xl rounded-xl p-4 top-8 min-w-[220px] z-50">
 
-        </select>
+            {Array.isArray(categories) &&
+              categories.map((category) => (
+
+                <Link
+                  key={category.id}
+                  to={`/category/${category.id}`}
+                  className="py-2 hover:text-amber-900 transition"
+                >
+                  {category.name}
+                </Link>
+
+              ))}
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -370,7 +459,6 @@ export default function Navbar({ filterByCategory }) {
           <Link
             to="/"
             onClick={() => {
-              filterByCategory("all");
               setMenuOpen(false);
             }}
           >
@@ -380,7 +468,6 @@ export default function Navbar({ filterByCategory }) {
           <Link
             to="/shop"
             onClick={() => {
-              filterByCategory("all");
               setMenuOpen(false);
             }}
           >
@@ -412,20 +499,24 @@ export default function Navbar({ filterByCategory }) {
             Sale
           </Link>
 
-          <select
-            onChange={(e) => {
-              filterByCategory(e.target.value);
-              setMenuOpen(false);
-            }}
-            className="bg-transparent outline-none border border-gray-300 px-4 py-2 rounded-lg"
-          >
-            <option value="all">Category</option>
+          {/* Mobile Categories */}
+          <div className="flex flex-col gap-4">
 
-            <option value="1">wenter</option>
+            {Array.isArray(categories) &&
+              categories.map((category) => (
 
-            <option value="2">summer</option>
+                <Link
+                  key={category.id}
+                  to={`/category/${category.id}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="hover:text-amber-900 transition"
+                >
+                  {category.name}
+                </Link>
 
-          </select>
+              ))}
+
+          </div>
 
           {/* Mobile Auth Buttons */}
           <div className="flex flex-col gap-4 w-full px-6">
@@ -468,5 +559,7 @@ export default function Navbar({ filterByCategory }) {
       </div>
 
     </div>
+
   );
+
 }

@@ -6,6 +6,16 @@ function Collection() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // صور بديلة لو صور الـ API مش شغالة
+  const fallbackImages = [
+        "/ss.jpg",
+    "/aa.jpg",
+    "/a.jpg",
+    "/e.jpg",
+    "/k.jpg",
+    "/p.jpg",
+  ];
+
   useEffect(() => {
 
     async function fetchProducts() {
@@ -26,14 +36,13 @@ function Collection() {
 
       }
 
-    } 
+    }
 
     fetchProducts();
 
   }, []);
 
-  // 🔥 Add Product Function
-
+  // Add Product Function
   const addProduct = () => {
 
     const newProduct = {
@@ -46,7 +55,7 @@ function Collection() {
 
       price: 999,
 
-   
+      image: "",
 
     };
 
@@ -57,7 +66,7 @@ function Collection() {
   if (loading) {
 
     return (
-      <h1 className="text-center text-3xl">
+      <h1 className="text-center text-3xl mt-20">
         Loading...
       </h1>
     );
@@ -66,9 +75,9 @@ function Collection() {
 
   return (
 
-    <div className="w-full min-h-screen text-white px-6 md:px-16 py-16">
+    <div className="w-full min-h-screen px-6 md:px-16 py-16">
 
-
+      {/* Title */}
       <h2 className="text-6xl md:text-5xl font-bold text-gray-800 text-center pt-8">
         NEW COLLECTION
       </h2>
@@ -77,41 +86,55 @@ function Collection() {
         Discover exclusive deals on our latest collection
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch py-8">
+
+      {/* Products */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch py-10">
 
         {products.map((item) => (
 
           <div
             key={item.id}
             className="
-            bg-gray-400
-            p-4
-            rounded-2xl
-            flex
-            flex-col
-            items-center
-            text-center
-            hover:scale-105
-            transition
-            duration-300
+              bg-gray-100
+              p-4
+              rounded-2xl
+              flex
+              flex-col
+              items-center
+              text-center
+              shadow-md
+              hover:scale-105
+              transition
+              duration-300
             "
           >
 
+            {/* Product Image */}
             <img
-              src={item.image}
-              alt=""
-              className="h-64 object-contain mb-4"
+              src={
+                item.image ||
+                fallbackImages[item.id % fallbackImages.length]
+              }
+              alt={item.title}
+              onError={(e) => {
+                e.target.src =
+                  fallbackImages[item.id % fallbackImages.length];
+              }}
+              className="h-64 w-full object-contain mb-4"
             />
 
-            <h3 className="font-semibold">
+            {/* Product Title */}
+            <h3 className="font-semibold text-xl text-gray-800">
               {item.title}
             </h3>
 
-            <p className="text-sm opacity-80 line-clamp-3">
+            {/* Product Description */}
+            <p className="text-sm text-gray-500 mt-2 line-clamp-3">
               {item.description}
             </p>
 
-            <p className="mt-2 font-bold">
+            {/* Product Price */}
+            <p className="mt-4 font-bold text-black text-lg">
               ${item.price}
             </p>
 

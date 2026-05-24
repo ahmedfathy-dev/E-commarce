@@ -6,8 +6,17 @@ function SaleSection() {
   const [saleItems, setSaleItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Fetch API
+  // صور بديلة
+  const fallbackImages = [
+    "/ss.jpg",
+    "/aa.jpg",
+    "/a.jpg",
+    "/e.jpg",
+    "/k.jpg",
+    "/p.jpg",
+  ];
 
+  // Fetch API
   useEffect(() => {
 
     async function fetchProducts() {
@@ -18,13 +27,15 @@ function SaleSection() {
 
         console.log(data);
 
-        // 👇 نضيف Discount وهمي
+        // إضافة خصومات وهمية
         const productsWithDiscount = Array.isArray(data)
           ? data.map((item, index) => ({
 
               ...item,
 
-              oldPrice: (Number(item.price) + 40).toFixed(2),
+              oldPrice: (
+                Number(item.price) + 40
+              ).toFixed(2),
 
               discount:
                 index % 3 === 0
@@ -71,7 +82,6 @@ function SaleSection() {
     <div className="w-full bg-[#f5f5f5] py-14 px-6 md:px-16 overflow-hidden">
 
       {/* Header */}
-
       <div className="text-center mb-12">
 
         <h2 className="text-3xl md:text-5xl font-bold text-gray-800 animate-fadeUp">
@@ -86,7 +96,6 @@ function SaleSection() {
       </div>
 
       {/* Cards */}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
 
         {Array.isArray(saleItems) &&
@@ -94,32 +103,61 @@ function SaleSection() {
 
             <div
               key={item.id}
-              className="relative bg-white rounded-2xl p-5 md:p-6 shadow-md hover:shadow-xl transition-all duration-300 group animate-fadeUp will-change-transform"
+              className="
+                relative
+                bg-white
+                rounded-2xl
+                p-5
+                md:p-6
+                shadow-md
+                hover:shadow-xl
+                transition-all
+                duration-300
+                group
+                animate-fadeUp
+                will-change-transform
+              "
               style={{ animationDelay: `${i * 0.1}s` }}
             >
 
               {/* Discount Badge */}
-
-              <span className="absolute top-4 left-4 bg-pink-500 text-white text-xs md:text-sm px-3 py-1 rounded-full shadow-sm">
+              <span className="absolute top-4 left-4 bg-pink-500 text-white text-xs md:text-sm px-3 py-1 rounded-full shadow-sm z-10">
 
                 {item.discount}
 
               </span>
 
               {/* Image */}
-
-              <div className="overflow-hidden rounded-xl">
+              <div className="overflow-hidden rounded-xl bg-gray-100">
 
                 <img
-                  src={item.image}
+                  src={
+                    item.image ||
+                    fallbackImages[
+                      i % fallbackImages.length
+                    ]
+                  }
                   alt={item.title}
-                  className="h-52 md:h-56 w-full object-contain group-hover:scale-110 transition-transform duration-500"
+                  onError={(e) => {
+                    e.target.src =
+                      fallbackImages[
+                        i % fallbackImages.length
+                      ];
+                  }}
+                  className="
+                    h-52
+                    md:h-56
+                    w-full
+                    object-contain
+                    group-hover:scale-110
+                    transition-transform
+                    duration-500
+                  "
                 />
 
               </div>
 
               {/* Info */}
-
               <div className="mt-5 text-center">
 
                 <h3 className="text-base md:text-lg font-semibold text-gray-800">
@@ -147,8 +185,7 @@ function SaleSection() {
               </div>
 
               {/* Hover Layer */}
-
-              <div className="absolute inset-0 bg-pink-500/10 opacity-0 group-hover:opacity-100 rounded-2xl transition duration-300 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-pink-200/10 opacity-0 group-hover:opacity-100 rounded-2xl transition duration-300 pointer-events-none"></div>
 
             </div>
 

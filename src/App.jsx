@@ -13,116 +13,83 @@ import Collections from "./page/Collections";
 import SaleSections from "./page/SaleSections";
 import Book from "./page/Book";
 import Footer from "./page/Footer";
-
+import CategoryPage from "./page/CategoryPage";
 import {
   getProducts,
   getProductsByCategory,
 } from "./services/api";
 
 function App() {
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // GET ALL PRODUCTS
   useEffect(() => {
-
     fetchAllProducts();
-
   }, []);
 
+  // ALL PRODUCTS
   async function fetchAllProducts() {
-
     try {
-
       setLoading(true);
 
       const data = await getProducts();
 
       const productsWithDiscount = data.map((item, index) => ({
-
         ...item,
-
         oldPrice: (Number(item.price) + 40).toFixed(2),
-
         discount:
           index % 3 === 0
             ? "-30%"
             : index % 2 === 0
             ? "-25%"
             : "-20%",
-
       }));
 
       setProducts(productsWithDiscount);
-
     } catch (error) {
-
       console.log(error);
-
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
-  // FILTER CATEGORY FROM API
-  async function filterByCategory(category) {
-
+  // 🔥 CATEGORY FILTER (FIXED)
+  async function filterByCategory(categoryId) {
     try {
-
       setLoading(true);
 
-      // ALL PRODUCTS
-      if (category === "all") {
-
-        fetchAllProducts();
-
+      if (categoryId === "all") {
+        await fetchAllProducts();
         return;
-
       }
 
-      // CATEGORY PRODUCTS
-      const data = await getProductsByCategory(category);
+      const data = await getProductsByCategory(categoryId);
 
       const productsWithDiscount = data.map((item, index) => ({
-
         ...item,
-
         oldPrice: (Number(item.price) + 40).toFixed(2),
-
         discount:
           index % 3 === 0
             ? "-30%"
             : index % 2 === 0
             ? "-25%"
             : "-20%",
-
       }));
 
       setProducts(productsWithDiscount);
-
     } catch (error) {
-
       console.log(error);
-
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
   return (
     <>
+      {/* 🔥 IMPORTANT: now Navbar sends only ID */}
       <Navbar filterByCategory={filterByCategory} />
 
       <Routes>
-
-        {/* Home */}
         <Route
           path="/"
           element={
@@ -141,11 +108,9 @@ function App() {
           }
         />
 
-        {/* Pages */}
         <Route path="/shop" element={<Shop />} />
-
         <Route path="/Collection" element={<Collections />} />
-
+<Route path="/category/:id" element={<CategoryPage />} />
         <Route
           path="/sale"
           element={
@@ -167,8 +132,6 @@ function App() {
         />
 
         <Route path="/Book" element={<Book />} />
-
-
       </Routes>
     </>
   );
