@@ -226,7 +226,7 @@ function Essentials() {
                 item.image ||
                 fallbackImages[index % fallbackImages.length]
               }
-              alt={item.title}
+              alt={item.name}
               onError={(e) => {
                 e.target.src =
                   fallbackImages[index % fallbackImages.length];
@@ -238,7 +238,7 @@ function Essentials() {
             <div className="p-4 text-center">
 
               <p className="text-gray-700 font-semibold">
-                {item.title}
+                {item.name}
               </p>
 
             </div>

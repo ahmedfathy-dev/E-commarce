@@ -137,7 +137,7 @@ function SaleSection() {
                       i % fallbackImages.length
                     ]
                   }
-                  alt={item.title}
+                  alt={item.name}
                   onError={(e) => {
                     e.target.src =
                       fallbackImages[
@@ -162,7 +162,7 @@ function SaleSection() {
 
                 <h3 className="text-base md:text-lg font-semibold text-gray-800">
 
-                  {item.title}
+                  {item.name}
 
                 </h3>
 

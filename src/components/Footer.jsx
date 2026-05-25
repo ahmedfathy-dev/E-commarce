@@ -42,7 +42,7 @@ const Footer = () => {
           <h2 className="text-lg font-semibold mb-4">Follow Us</h2>
           <div className="flex space-x-4 text-xl">
             <FaFacebookF className="hover:text-blue-500 cursor-pointer" />
-            <FaInstagram className="hover:text-pink-500 cursor-pointer" />
+            <FaInstagram className="hover:text-pink-600 cursor-pointer" />
             <FaTwitter className="hover:text-sky-400 cursor-pointer" />
             <FaLinkedinIn className="hover:text-blue-400 cursor-pointer" />
           </div>

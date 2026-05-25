@@ -14,6 +14,9 @@ import SaleSections from "./page/SaleSections";
 import Book from "./page/Book";
 import Footer from "./page/Footer";
 import CategoryPage from "./page/CategoryPage";
+import CartPage from "./page/CartPage"; 
+import ProductPage from "./page/ProductPage";
+
 import {
   getProducts,
   getProductsByCategory,
@@ -111,6 +114,10 @@ function App() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/Collection" element={<Collections />} />
 <Route path="/category/:id" element={<CategoryPage />} />
+<Route path="/cart" element={<CartPage />} />
+<Route path="/product/:id" element={<ProductPage />} />
+
+
         <Route
           path="/sale"
           element={
