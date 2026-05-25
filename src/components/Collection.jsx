@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getProducts } from "../services/api";
+import { useCart } from "../context/CartContext"; // ← جديد
 
 function Collection() {
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart(); // ← جديد
 
-  // صور بديلة لو صور الـ API مش شغالة
   const fallbackImages = [
     "/ss.jpg",
     "/aa.jpg",
@@ -17,64 +17,28 @@ function Collection() {
   ];
 
   useEffect(() => {
-
     async function fetchProducts() {
-
       try {
-
         const data = await getProducts();
-
         setProducts(data);
-
       } catch (error) {
-
         console.log(error);
-
       } finally {
-
         setLoading(false);
-
       }
-
     }
-
     fetchProducts();
-
   }, []);
 
-  // Add Product Function
-  const addProduct = () => {
-
-    const newProduct = {
-
-      id: products.length + 1,
-
-      title: "New Product",
-
-      description: "This is a new product",
-
-      price: 999,
-
-      image: "",
-
-    };
-
-    setProducts([...products, newProduct]);
-
-  };
-
   if (loading) {
-
     return (
       <h1 className="text-center text-3xl mt-20">
         Loading...
       </h1>
     );
-
   }
 
   return (
-
     <div className="w-full min-h-screen px-6 md:px-16 py-16">
 
       {/* Title */}
@@ -86,12 +50,9 @@ function Collection() {
         Discover exclusive deals on our latest collection
       </p>
 
-
       {/* Products */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch py-10">
-
         {products.map((item) => (
-
           <div
             key={item.id}
             className="
@@ -108,17 +69,12 @@ function Collection() {
               duration-300
             "
           >
-
             {/* Product Image */}
             <img
-              src={
-                item.image ||
-                fallbackImages[item.id % fallbackImages.length]
-              }
+              src={item.image || fallbackImages[item.id % fallbackImages.length]}
               alt={item.title}
               onError={(e) => {
-                e.target.src =
-                  fallbackImages[item.id % fallbackImages.length];
+                e.target.src = fallbackImages[item.id % fallbackImages.length];
               }}
               className="h-64 w-full object-contain mb-4"
             />
@@ -138,16 +94,20 @@ function Collection() {
               ${item.price}
             </p>
 
+            {/* 🛒 Add to Cart */}
+            <button
+              onClick={() => addToCart(item)}
+              className="mt-4 w-full bg-black text-white py-2 rounded-xl hover:bg-amber-900 transition duration-300"
+            >
+              Add to Cart
+            </button>
+
           </div>
-
         ))}
-
       </div>
 
     </div>
-
   );
-
 }
 
 export default Collection;
