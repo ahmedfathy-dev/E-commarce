@@ -1,99 +1,100 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import { useCart } from "../context/CartContext";
 
-const fallbackImages = [
-  "/ss.jpg", "/aa.jpg", "/a.jpg",
-  "/e.jpg", "/k.jpg", "/p.jpg",
-];
-
 export default function CartPage() {
-  const { cart, removeFromCart, clearCart, totalItems } = useCart(); // ← جديد clearCart
-
+  const { cart, removeFromCart, clearCart, totalItems } = useCart();
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-28 pb-16 px-6 md:px-16">
-
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-4xl font-bold text-gray-800">Your Cart 🛒</h1>
-
-        {/* 🗑️ Clear All Button */}
-        {cart.length > 0 && (
-          <button
-            onClick={clearCart}
-            className="flex items-center gap-2 bg-red-700 text-white px-6 py-4 rounded-xl hover:bg-red-600 transition text-xl font-semibold"
-          >
-            <IoClose className="text-lg" />
-            Clear All
-          </button>
-        )}
-      </div>
-
-      <p className="text-gray-400 mb-10">{totalItems} item{totalItems !== 1 ? "s" : ""} in your cart</p>
-
-      {cart.length === 0 ? (
-        <div className="flex flex-col items-center justify-center mt-24 gap-6">
-          <p className="text-2xl text-gray-400">Your cart is empty 🛍️</p>
-          <Link to="/Shop" className="bg-black text-white px-8 py-3 rounded-xl hover:bg-amber-900 transition">
-            Continue Shopping
-          </Link>
-        </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row gap-10">
-
-          {/* Items */}
-          <div className="flex-1 flex flex-col gap-4">
-            {cart.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm">
-                <img
-                  src={item.image || fallbackImages[item.id % fallbackImages.length]}
-                  alt={item.name}
-                  onError={(e) => { e.target.src = fallbackImages[item.id % fallbackImages.length]; }}
-                  className="w-24 h-24 object-contain rounded-xl bg-gray-100 p-2"
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 line-clamp-2">{item.name}</h3>
-                  <p className="text-gray-400 text-sm mt-1">${item.price} × {item.quantity}</p>
-                  <p className="font-bold text-black mt-1">${(item.price * item.quantity).toFixed(2)}</p>
-                </div>
-                <button
-                  onClick={() => removeFromCart(item.id)}
-                  className="text-red-400 hover:text-red-600 text-2xl transition"
-                >
-                  <IoClose />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Summary */}
-          <div className="lg:w-[320px] bg-white p-6 rounded-2xl shadow-sm h-fit">
-            <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
-            <div className="flex justify-between text-gray-500 mb-3">
-              <span>Items ({totalItems})</span>
-              <span>${total.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-gray-500 mb-6">
-              <span>Shipping</span>
-              <span className="text-green-500">Free</span>
-            </div>
-            <div className="flex justify-between font-bold text-xl border-t pt-4">
-              <span>Total</span>
-              <span>${total.toFixed(2)}</span>
-            </div>
-            <button className="mt-6 w-full bg-black text-white py-3 rounded-xl hover:bg-amber-900 transition font-semibold text-lg">
-              Checkout
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:px-12">
+        <div className="mb-2 flex items-end justify-between gap-4">
+          <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
+            Your cart
+          </h1>
+          {cart.length > 0 && (
+            <button
+              type="button"
+              onClick={clearCart}
+              className="text-sm text-neutral-400 transition hover:text-neutral-900"
+            >
+              Clear all
             </button>
-            <Link to="/Shop" className="block text-center mt-4 text-gray-400 hover:text-black transition">
-              Continue Shopping
+          )}
+        </div>
+        <p className="mb-10 text-sm text-neutral-400">
+          {totalItems} item{totalItems !== 1 ? "s" : ""}
+        </p>
+
+        {cart.length === 0 ? (
+          <div className="py-24 text-center">
+            <p className="text-neutral-400">Your cart is empty</p>
+            <Link
+              to="/shop"
+              className="mt-6 inline-block rounded-md bg-neutral-900 px-6 py-3 text-sm text-white"
+            >
+              Continue shopping
             </Link>
           </div>
+        ) : (
+          <div className="flex flex-col gap-10 lg:flex-row">
+            <div className="flex flex-1 flex-col divide-y divide-[#ededed] border-y border-[#ededed]">
+              {cart.map((item) => (
+                <div key={item.id} className="flex items-center gap-4 py-5">
+                  <img
+                    src={item.image}
+                    alt={item.name || item.title}
+                    className="h-24 w-20 rounded-md border border-[#ededed] object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-medium text-neutral-900">{item.name || item.title}</h3>
+                    <p className="mt-1 text-sm text-neutral-400">
+                      ${Number(item.price).toFixed(2)} × {item.quantity}
+                    </p>
+                  </div>
+                  <p className="font-medium text-neutral-900">
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-neutral-400 hover:text-neutral-900"
+                    aria-label="Remove"
+                  >
+                    <IoClose />
+                  </button>
+                </div>
+              ))}
+            </div>
 
-        </div>
-      )}
+            <div className="h-fit rounded-lg border border-[#ededed] p-6 lg:w-[320px]">
+              <h2 className="text-lg font-semibold">Order summary</h2>
+              <div className="mt-5 flex justify-between text-sm text-neutral-500">
+                <span>Items ({totalItems})</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+              <div className="mt-3 flex justify-between text-sm text-neutral-500">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+              <div className="mt-5 flex justify-between border-t border-[#ededed] pt-4 font-semibold">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+              <button
+                type="button"
+                className="mt-6 w-full rounded-md bg-neutral-900 py-3 text-sm font-medium text-white transition hover:opacity-90"
+              >
+                Checkout
+              </button>
+              <Link to="/shop" className="mt-4 block text-center text-sm text-neutral-400 hover:text-neutral-900">
+                Continue shopping
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

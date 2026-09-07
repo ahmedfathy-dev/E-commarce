@@ -1,49 +1,41 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 function Hero() {
   return (
-    <div>
-      <div className="min-h-screen bg-cover bg-center w-full">
-        <div
-          className="min-h-screen bg-cover w-full flex items-center"
-          style={{
-            backgroundImage: "url('c.jpg')",
-          }}
-        >
-          {/* المحتوى */}
-          <div className="px-6 sm:px-10 md:px-16 w-full text-gray-700">
-            
-            {/* العنوان */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold animate-fadeInUp">
-              Difine
-            </h1>
-
-            <p className="text-4xl sm:text-5xl md:text-6xl font-bold animate-fadeInUp delay-150">
-              your style
-            </p>
-
-            {/* الوصف */}
-            <p className="text-lg sm:text-xl md:text-2xl pt-6 sm:pt-10 typing animate-fadeInUp delay-300">
-              Modern Manswear For Evry Occasion
-            </p>
-
-            {/* الأزرار */}
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 text-lg sm:text-x1 md:text-2xl animate-fadeInUp delay-500">
-              
-              <Link to="/shop" className="px-6 py-3 bg-gray-700 text-white rounded-2xl hover:scale-105 hover:shadow-lg transition duration-300">
-                Shop Now
-              </Link>
-
-              <Link to="/shop" className="px-6 py-3 border border-gray-700 text-gray-700 rounded-2xl hover:scale-105 hover:bg-gray-700 hover:text-white transition duration-300">
-                New Araivel
-              </Link>
-
-            </div>
+    <section className="bg-white">
+      <div className="mx-auto grid min-h-[78vh] max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:py-20">
+        <div>
+          <p className="animate-fadeInUp text-xs tracking-[0.28em] text-neutral-400 uppercase">
+            New season
+          </p>
+          <h1 className="animate-fadeInUp delay-150 mt-4 max-w-xl text-5xl font-semibold tracking-tight text-neutral-900 sm:text-6xl lg:text-7xl">
+            Define your style
+          </h1>
+          <p className="animate-fadeInUp delay-300 mt-5 max-w-md text-base text-neutral-500">
+            Modern womenswear for every occasion. Clean lines, considered
+            fabrics, and pieces that last beyond the season.
+          </p>
+          <div className="animate-fadeInUp delay-500 mt-8 flex flex-wrap gap-3">
+            <Link
+              to="/shop"
+              className="rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:opacity-90"
+            >
+              Shop now
+            </Link>
+            <Link
+              to="/collection"
+              className="rounded-md border border-[#ededed] px-6 py-3 text-sm font-medium text-neutral-900 transition hover:border-neutral-900"
+            >
+              Collections
+            </Link>
           </div>
         </div>
+
+        <div className="animate-fadeInUp delay-300 relative overflow-hidden rounded-lg border border-[#ededed]">
+          <img src="/c.jpg" alt="Summer editorial look" className="h-[52vh] w-full object-cover sm:h-[62vh]" />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 

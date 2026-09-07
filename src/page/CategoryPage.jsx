@@ -1,169 +1,37 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { categories, getProductsByCategory } from "../data/products";
+import ProductGrid from "../components/products/ProductGrid";
+import Footer from "./Footer";
 
 export default function CategoryPage() {
-
   const { id } = useParams();
-
-  const [products, setProducts] = useState([]);
-
-  const [loading, setLoading] = useState(true);
-
-  const [categoryName, setCategoryName] = useState("");
-
-  // Default Images
-  const defaultImages = [
-        "/ss.jpg",
-    "/aa.jpg",
-    "/a.jpg",
-    "/e.jpg",
-    "/k.jpg",
-    "/p.jpg",
-  ];
-
-  useEffect(() => {
-
-    async function fetchProducts() {
-
-      try {
-
-        setLoading(true);
-
-        const response = await fetch(
-          `https://test.tsdtecheg.com/api/showCate/${id}`
-        );
-
-        const data = await response.json();
-
-        console.log("CATEGORY DATA:", data);
-
-        // Products
-        setProducts(data.products || data.data || []);
-
-        // Category Name
-        setCategoryName(
-          data.category?.name ||
-          data.data?.name ||
-          "Category Products"
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    }
-
-    fetchProducts();
-
-  }, [id]);
+  const category = categories.find((item) => item.id === id);
+  const items = getProductsByCategory(id);
+  const categoryName = category?.name || "Category";
 
   return (
-
-    <div className="pt-32 px-6 min-h-screen bg-white">
-
-      {/* Title */}
-      <div className="mb-12 text-center">
-
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-800">
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:px-12">
+        <p className="text-xs tracking-[0.2em] text-neutral-400 uppercase">Category</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
           {categoryName}
         </h1>
-
-        <p className="text-gray-500 mt-3">
-          Explore our latest collection
+        <p className="mt-2 mb-8 text-sm text-neutral-500">
+          {category?.line || "Explore our latest collection"}
         </p>
 
+        {items.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="text-neutral-400">No products found</p>
+            <Link to="/shop" className="mt-4 inline-block text-sm text-neutral-900 underline">
+              Back to shop
+            </Link>
+          </div>
+        ) : (
+          <ProductGrid products={items} />
+        )}
       </div>
-
-      {/* Loading */}
-      {loading ? (
-
-        <div className="flex items-center justify-center py-20">
-
-          <h2 className="text-2xl font-semibold text-gray-500">
-            Loading...
-          </h2>
-
-        </div>
-
-      ) : products.length === 0 ? (
-
-        /* Empty State */
-        <div className="flex items-center justify-center py-20">
-
-          <h2 className="text-2xl font-semibold text-gray-400">
-            No Products Found
-          </h2>
-
-        </div>
-
-      ) : (
-
-        /* Products Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-
-          {products.map((product, index) => (
-
-            <div
-              key={product.id}
-              className="group border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl transition duration-300 bg-white"
-            >
-
-              {/* Product Image */}
-              <div className="overflow-hidden">
-
-                <img
-                  src={
-                    product.image ||
-                    product.images?.[0] ||
-                    defaultImages[index % defaultImages.length]
-                  }
-                  alt={product.name}
-                  onError={(e) => {
-                    e.target.src =
-                      defaultImages[index % defaultImages.length];
-                  }}
-                  className="w-full h-[320px] object-cover group-hover:scale-105 transition duration-500"
-                />
-
-              </div>
-
-              {/* Product Info */}
-              <div className="p-5">
-
-                <h2 className="text-xl font-semibold text-gray-800 line-clamp-1">
-                  {product.name}
-                </h2>
-
-                <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-                  {product.description || "Premium Fashion Product"}
-                </p>
-
-                <div className="mt-5">
-
-                  <span className="text-2xl font-bold text-black">
-                    ${product.price || "99"}
-                  </span>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          ))}
-
-        </div>
-
-      )}
-
+      <Footer />
     </div>
-
   );
-
 }

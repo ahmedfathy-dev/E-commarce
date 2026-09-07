@@ -1,61 +1,45 @@
-import React from "react";
-import { FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white mt-20">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
-
-        {/* Logo & Description */}
+    <footer className="mt-10 border-t border-[#ededed] bg-white text-neutral-900">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-5 py-14 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
         <div>
-          <h1 className="text-2xl font-bold mb-4">MyShop</h1>
-          <p className="text-gray-400 text-sm leading-6">
-            Modern ecommerce store built with love. We deliver the best products
-            with high quality and fast shipping.
+          <h1 className="text-sm font-semibold tracking-[0.18em]">HARER</h1>
+          <p className="mt-4 max-w-xs text-sm leading-6 text-neutral-500">
+            Modern womenswear. Considered pieces, made to last beyond the season.
           </p>
         </div>
 
-        {/* Links */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">Quick Links</h2>
-          <ul className="space-y-2 text-gray-400">
-            <li className="hover:text-white cursor-pointer">Home</li>
-            <li className="hover:text-white cursor-pointer">Shop</li>
-            <li className="hover:text-white cursor-pointer">About</li>
-            <li className="hover:text-white cursor-pointer">Contact</li>
+          <h2 className="text-sm font-semibold">Shop</h2>
+          <ul className="mt-4 space-y-2 text-sm text-neutral-500">
+            <li><Link to="/" className="hover:text-neutral-900">Home</Link></li>
+            <li><Link to="/shop" className="hover:text-neutral-900">Shop</Link></li>
+            <li><Link to="/collection" className="hover:text-neutral-900">Collections</Link></li>
+            <li><Link to="/sale" className="hover:text-neutral-900">Sale</Link></li>
           </ul>
         </div>
 
-        {/* Support */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">Support</h2>
-          <ul className="space-y-2 text-gray-400">
-            <li className="hover:text-white cursor-pointer">FAQ</li>
-            <li className="hover:text-white cursor-pointer">Shipping</li>
-            <li className="hover:text-white cursor-pointer">Returns</li>
-            <li className="hover:text-white cursor-pointer">Privacy Policy</li>
+          <h2 className="text-sm font-semibold">Support</h2>
+          <ul className="mt-4 space-y-2 text-sm text-neutral-500">
+            <li>Shipping</li>
+            <li>Returns</li>
+            <li>Privacy Policy</li>
           </ul>
         </div>
 
-        {/* Social */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">Follow Us</h2>
-          <div className="flex space-x-4 text-xl">
-            <FaFacebookF className="hover:text-blue-500 cursor-pointer" />
-            <FaInstagram className="hover:text-pink-500 cursor-pointer" />
-            <FaTwitter className="hover:text-sky-400 cursor-pointer" />
-            <FaLinkedinIn className="hover:text-blue-400 cursor-pointer" />
-          </div>
-
-          <p className="text-gray-500 text-sm mt-4">
-            Stay connected for updates & offers.
+          <h2 className="text-sm font-semibold">Follow</h2>
+          <p className="mt-4 text-sm text-neutral-500">
+            Stay close for new drops and quiet restocks.
           </p>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-gray-800 text-center py-4 text-gray-500 text-sm">
-        © {new Date().getFullYear()} MyShop. All rights reserved.
+      <div className="border-t border-[#ededed] py-4 text-center text-xs text-neutral-400">
+        © {new Date().getFullYear()} WOMEN. All rights reserved.
       </div>
     </footer>
   );

@@ -1,13 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import { BsCart3 } from "react-icons/bs";
+import { FiHeart, FiSearch, FiUser } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
+import { categories, searchProducts } from "../data/products";
+import LoginForm from "./auth/LoginForm";
+import RegisterForm from "./auth/RegisterForm";
+
+const links = [
+  { to: "/", label: "Home" },
+  { to: "/shop", label: "Shop" },
+  { to: "/collection", label: "Collections" },
+  { to: "/sale", label: "Sale" },
+];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,75 +30,55 @@ export default function Navbar() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [categories, setCategories] = useState([]);
-
+  const [authError, setAuthError] = useState("");
   const { totalItems } = useCart();
+  const { ids } = useWishlist();
+  const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setIsLoggedIn(true);
   }, []);
 
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const response = await fetch("https://test.tsdtecheg.com/api/Allcategory");
-        const data = await response.json();
-        setCategories(data.categories || data.data || []);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchCategories();
-  }, []);
-
-  async function handleLogin(e) {
-    e.preventDefault();
-    try {
-      const response = await fetch("https://test.tsdtecheg.com/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok && (data.token || data.access_token)) {
-        localStorage.setItem("token", data.token || data.access_token);
-        setIsLoggedIn(true);
-        setShowLogin(false);
-        setEmail("");
-        setPassword("");
-        toast.success("Login Success");
-      } else {
-        toast.error(data.message || "Login Failed");
-      }
-    } catch (error) {
-      toast.error("Server Error");
-    }
+  function resetAuthFields() {
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setAuthError("");
   }
 
-  async function handleRegister(e) {
-    e.preventDefault();
+  function handleLogin(event) {
+    event.preventDefault();
+    if (!email || !password) {
+      setAuthError("Please fill in all fields");
+      toast.error("Please fill in all fields");
+      return;
+    }
+    localStorage.setItem("token", "local-session");
+    setIsLoggedIn(true);
+    setShowLogin(false);
+    resetAuthFields();
+    toast.success("Login Success");
+  }
+
+  function handleRegister(event) {
+    event.preventDefault();
+    if (!name || !email || !password || !confirmPassword) {
+      setAuthError("Please fill in all fields");
+      toast.error("Please fill in all fields");
+      return;
+    }
     if (password !== confirmPassword) {
+      setAuthError("Passwords do not match");
       toast.error("Passwords do not match");
       return;
     }
-    try {
-      const response = await fetch("https://test.tsdtecheg.com/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, password_confirmation: confirmPassword }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Register Success");
-        setShowRegister(false);
-        setName(""); setEmail(""); setPassword(""); setConfirmPassword("");
-      } else {
-        toast.error(data.message || "Register Failed");
-      }
-    } catch (error) {
-      toast.error("Server Error");
-    }
+    localStorage.setItem("token", "local-session");
+    setIsLoggedIn(true);
+    setShowRegister(false);
+    resetAuthFields();
+    toast.success("Register Success");
   }
 
   function handleLogout() {
@@ -92,123 +87,206 @@ export default function Navbar() {
     toast.success("Logout Success");
   }
 
+  function submitSearch(event) {
+    event.preventDefault();
+    const value = query.trim();
+    setSearchOpen(false);
+    if (value) navigate(`/shop?q=${encodeURIComponent(value)}`);
+    else navigate("/shop");
+  }
+
+  const linkClass = ({ isActive }) =>
+    `text-sm transition ${isActive ? "text-neutral-900" : "text-neutral-500 hover:text-neutral-900"}`;
+
   return (
-    <div className="fixed top-0 left-0 w-full z-50 py-4 px-6 md:px-10 flex items-center justify-between shadow-sm bg-white/30 backdrop-blur-md">
-
-      {/* Login Modal */}
-      {showLogin && (
-        <div className="fixed top-0 left-0 w-full h-screen bg-black/50 flex items-center justify-center z-[9999]">
-          <form onSubmit={handleLogin} className="bg-white w-[90%] max-w-[400px] p-8 rounded-2xl flex flex-col gap-4 shadow-2xl">
-            <h2 className="text-3xl font-bold text-center">Login</h2>
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="border p-3 rounded-lg outline-none" />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-3 rounded-lg outline-none" />
-            <button type="submit" className="bg-black text-white py-3 rounded-lg hover:bg-amber-900 transition">Login</button>
-            <button type="button" onClick={() => { setShowLogin(false); setShowRegister(true); }} className="text-blue-500">Create Account</button>
-            <button type="button" onClick={() => setShowLogin(false)} className="border py-3 rounded-lg">Cancel</button>
-          </form>
-        </div>
-      )}
-
-      {/* Register Modal */}
-      {showRegister && (
-        <div className="fixed top-0 left-0 w-full h-screen bg-black/50 flex items-center justify-center z-[9999]">
-          <form onSubmit={handleRegister} className="bg-white w-[90%] max-w-[400px] p-8 rounded-2xl flex flex-col gap-4 shadow-2xl">
-            <h2 className="text-3xl font-bold text-center">Register</h2>
-            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="border p-3 rounded-lg outline-none" />
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="border p-3 rounded-lg outline-none" />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-3 rounded-lg outline-none" />
-            <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="border p-3 rounded-lg outline-none" />
-            <button type="submit" className="bg-black text-white py-3 rounded-lg hover:bg-amber-900 transition">Register</button>
-            <button type="button" onClick={() => setShowRegister(false)} className="border py-3 rounded-lg">Cancel</button>
-          </form>
-        </div>
-      )}
-
-      {/* Logo */}
-      <div className="flex items-center gap-3 pl-6">
-        <Link to="/" className="font-bold text-4xl text-gray-300">WOMEN</Link>
-      </div>
-
-      {/* Desktop Links */}
-      <div className="hidden md:flex gap-10 text-gray-700 text-xl items-center">
-        <Link to="/" className="hover:text-amber-900 px-2 py-1 rounded">Home</Link>
-        <Link to="/shop" className="hover:text-amber-900">Shop</Link>
-        <Link to="/collection" className="hover:text-amber-900">Clothing</Link>
-        <Link to="/Book" className="hover:text-amber-900">Lookbook</Link>
-        <Link to="/sale" className="hover:text-amber-700">Sale</Link>
-        <div className="relative group">
-          <button className="hover:text-amber-900 cursor-pointer">Categories</button>
-          <div className="absolute hidden group-hover:flex flex-col bg-white shadow-xl rounded-xl p-4 top-8 min-w-[220px] z-50">
-            {Array.isArray(categories) && categories.map((category) => (
-              <Link key={category.id} to={`/category/${category.id}`} className="py-2 hover:text-amber-900 transition">
-                {category.name}
-              </Link>
-            ))}
+    <header className="sticky top-0 z-50 border-b border-[#ededed] bg-white">
+      {(showLogin || showRegister) && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4">
+          <div className="grid max-h-[90vh] w-full max-w-4xl overflow-hidden scrollbar-none
+ rounded-xl border border-[#ededed] bg-white md:grid-cols-2">
+            <div
+              className="relative hidden min-h-[90vh] md:block"
+              style={{ backgroundImage: "url('/c.jpg')", backgroundSize: "cover",  backgroundPosition: "center" }}
+            >
+              <div className="absolute inset-0 bg-black/25" />
+              <div className="absolute bottom-8 left-8 right-8 text-white">
+                <p className="text-xs tracking-[0.25em] uppercase">HARER</p>
+                <h3 className="mt-3 text-4xl font-semibold">Define your style</h3>
+              </div>
+            </div>
+            {showLogin ? (
+              <LoginForm
+                email={email}
+                password={password}
+                error={authError}
+                onEmailChange={setEmail}
+                onPasswordChange={setPassword}
+                onSubmit={handleLogin}
+                onSwitch={() => {
+                  setShowLogin(false);
+                  setShowRegister(true);
+                  setAuthError("");
+                }}
+                onClose={() => {
+                  setShowLogin(false);
+                  resetAuthFields();
+                }}
+              />
+            ) : (
+              <RegisterForm
+                name={name}
+                email={email}
+                password={password}
+                confirmPassword={confirmPassword}
+                error={authError}
+                onNameChange={setName}
+                onEmailChange={setEmail}
+                onPasswordChange={setPassword}
+                onConfirmPasswordChange={setConfirmPassword}
+                onSubmit={handleRegister}
+                onSwitch={() => {
+                  setShowRegister(false);
+                  setShowLogin(true);
+                  setAuthError("");
+                }}
+                onClose={() => {
+                  setShowRegister(false);
+                  resetAuthFields();
+                }}
+              />
+            )}
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Desktop Icons + Auth */}
-      <div className="hidden md:flex items-center gap-6">
-        {!isLoggedIn ? (
-          <button onClick={() => setShowLogin(true)} className="text-gray-700 hover:text-amber-900 transition text-lg">Login</button>
-        ) : (
-          <button onClick={handleLogout} className="bg-black text-white px-5 py-2 rounded-full hover:bg-amber-900 transition">Logout</button>
-        )}
-        <div className="flex gap-6 text-2xl items-center">
-          {/* 🛒 Cart Icon → روح على /cart */}
-          <Link to="/cart" className="relative text-gray-700 hover:text-amber-900 transition">
-            <BsCart3 />
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+        <Link to="/" className="text-lg font-semibold tracking-[0.18em] text-neutral-900">
+          HARER
+        </Link>
+
+        <nav className="hidden items-center gap-8 lg:flex">
+          {links.map((link) => (
+            <NavLink key={link.to} to={link.to} className={linkClass} end={link.to === "/"}>
+              {link.label}
+            </NavLink>
+          ))}
+          <div className="group relative">
+            <button type="button" className="text-sm text-neutral-500 hover:text-neutral-900">
+              Categories
+            </button>
+            <div className="invisible absolute left-0 top-full z-50 min-w-44 rounded-lg border border-[#ededed] bg-white py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100">
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/category/${category.id}`}
+                  className="block px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </nav>
+
+        <div className="flex items-center gap-4 text-neutral-800">
+          <button type="button" aria-label="Search" onClick={() => setSearchOpen((open) => !open)}>
+            <FiSearch className="text-lg" />
+          </button>
+          <Link to="/wishlist" aria-label="Wishlist" className="relative hidden sm:block">
+            <FiHeart className="text-lg" />
+            {ids.length > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-900 text-[10px] text-white">
+                {ids.length}
+              </span>
+            )}
+          </Link>
+          <Link to="/cart" aria-label="Cart" className="relative">
+            <BsCart3 className="text-lg" />
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-900 text-[10px] text-white">
                 {totalItems}
               </span>
             )}
           </Link>
+          {!isLoggedIn ? (
+            <button type="button" aria-label="Account" onClick={() => setShowLogin(true)}>
+              <FiUser className="text-lg" />
+            </button>
+          ) : (
+            <button type="button" onClick={handleLogout} className="hidden text-sm text-neutral-500 sm:block">
+              Logout
+            </button>
+          )}
+          <button type="button" className="lg:hidden" onClick={() => setMenuOpen((open) => !open)}>
+            {menuOpen ? <IoClose className="text-2xl" /> : <HiMenuAlt3 className="text-2xl" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Menu Button */}
-      <div className="md:hidden text-3xl text-gray-600 cursor-pointer">
-        {menuOpen ? <IoClose onClick={() => setMenuOpen(false)} /> : <HiMenuAlt3 onClick={() => setMenuOpen(true)} />}
-      </div>
+      {searchOpen && (
+        <div className="border-t border-[#ededed] bg-white">
+          <form onSubmit={submitSearch} className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3 sm:px-8">
+            <FiSearch className="text-neutral-400" />
+            <input
+              autoFocus
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search products"
+              className="w-full bg-transparent text-sm outline-none"
+            />
+          </form>
+          {results.length > 0 && (
+            <div className="mx-auto max-w-7xl px-5 pb-4 sm:px-8">
+              {results.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/product/${item.id}`}
+                  onClick={() => setSearchOpen(false)}
+                  className="flex items-center gap-3 py-2 text-sm text-neutral-600 hover:text-neutral-900"
+                >
+                  <img src={item.image} alt="" className="h-10 w-10 rounded object-cover" />
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Mobile Menu */}
-      <div className={` absolute top-[90px] left-0 w-full bg-white/95 backdrop-blur-lg shadow-lg transition-all duration-300 overflow-hidden md:hidden ${menuOpen ? "max-h-[700px]" : "max-h-0"}`}>
-        <div className="flex flex-col items-center gap-6 text-gray-700 text-lg">
-          <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link to="/shop" onClick={() => setMenuOpen(false)}>Shop</Link>
-          <Link to="/collection" onClick={() => setMenuOpen(false)}>Clothing</Link>
-          <Link to="/Book" onClick={() => setMenuOpen(false)}>Lookbook</Link>
-          <Link to="/sale" onClick={() => setMenuOpen(false)}>Sale</Link>
-          <div className="flex flex-col gap-4">
-            {Array.isArray(categories) && categories.map((category) => (
-              <Link key={category.id} to={`/category/${category.id}`} onClick={() => setMenuOpen(false)} className="hover:text-amber-900 transition">
+      {menuOpen && (
+        <div className="border-t border-[#ededed] bg-white px-5 py-6 lg:hidden">
+          <div className="flex flex-col gap-4 text-sm">
+            {links.map((link) => (
+              <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)}>
+                {link.label}
+              </Link>
+            ))}
+            <Link to="/Book" onClick={() => setMenuOpen(false)}>Lookbook</Link>
+            <Link to="/wishlist" onClick={() => setMenuOpen(false)}>Wishlist</Link>
+            {categories.map((category) => (
+              <Link key={category.id} to={`/category/${category.id}`} onClick={() => setMenuOpen(false)} className="text-neutral-500">
                 {category.name}
               </Link>
             ))}
-          </div>
-          <div className="flex flex-col gap-4 w-full px-6">
             {!isLoggedIn ? (
-              <button onClick={() => { setShowLogin(true); setMenuOpen(false); }} className="w-full border border-gray-300 py-2 rounded-full hover:bg-gray-100 transition">Login</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLogin(true);
+                  setMenuOpen(false);
+                }}
+                className="rounded-md border border-[#ededed] py-2"
+              >
+                Login
+              </button>
             ) : (
-              <button onClick={handleLogout} className="w-full bg-black text-white py-2 rounded-full hover:bg-amber-900 transition">Logout</button>
+              <button type="button" onClick={handleLogout} className="rounded-md bg-neutral-900 py-2 text-white">
+                Logout
+              </button>
             )}
           </div>
-          <div className="flex gap-6 text-2xl pt-2 items-center">
-            {/* Mobile Cart */}
-            <Link to="/cart" onClick={() => setMenuOpen(false)} className="relative text-gray-700">
-              <BsCart3 />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-          </div>
         </div>
-      </div>
-
-    </div>
+      )}
+    </header>
   );
 }
