@@ -10,6 +10,7 @@ import ProductRating from "../components/products/ProductRating";
 import ProductBadge from "../components/products/ProductBadge";
 import Footer from "./Footer";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function ProductPage() {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
   const { t, categoryName } = useLanguage();
+  const { isLoggedIn, requestLogin } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -54,6 +56,10 @@ export default function ProductPage() {
   const onSale = discount > 0;
 
   function handleAddToCart() {
+    if (!isLoggedIn) {
+      requestLogin();
+      return;
+    }
     addToCart(product, quantity);
     toast.success(t("addedCart"));
   }

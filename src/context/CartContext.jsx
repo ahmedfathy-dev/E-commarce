@@ -23,6 +23,14 @@ export function CartProvider({ children }) {
     setCart((prev) => prev.filter((item) => item.id !== id));
   }
 
+  function updateQuantity(id, quantity) {
+    setCart((prev) => prev.map((item) => (
+      item.id === id
+        ? { ...item, quantity: Math.max(1, quantity) }
+        : item
+    )));
+  }
+
   function clearCart() {       
     setCart([]);
   }
@@ -30,7 +38,7 @@ export function CartProvider({ children }) {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, totalItems }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, totalItems }}>
       {children}
     </CartContext.Provider>
   );

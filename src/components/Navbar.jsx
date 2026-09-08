@@ -12,6 +12,7 @@ import { searchProducts } from "../services/products";
 import LoginForm from "./auth/LoginForm";
 import RegisterForm from "./auth/RegisterForm";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 
 const links = [
   { to: "/", key: "home" },
@@ -27,7 +28,6 @@ export default function Navbar() {
   const [query, setQuery] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,14 +38,17 @@ export default function Navbar() {
   const { ids } = useWishlist();
   const { categories } = useProducts();
   const { t, toggleLanguage, language, categoryName } = useLanguage();
+  const { isLoggedIn, login, logout, loginRequested, clearLoginRequest } = useAuth();
   const brandImage = language === "ar"
     ? "/لقطة شاشة 2026-09-08 142658.png"
     : "/لقطة شاشة 2026-09-08 142613.png";
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) setIsLoggedIn(true);
-  }, []);
+    if (loginRequested) {
+      setShowLogin(true);
+      clearLoginRequest();
+    }
+  }, [clearLoginRequest, loginRequested]);
 
   useEffect(() => {
     const value = query.trim();
@@ -84,8 +87,7 @@ export default function Navbar() {
       toast.error(t("fillFields"));
       return;
     }
-    localStorage.setItem("token", "local-session");
-    setIsLoggedIn(true);
+    login();
     setShowLogin(false);
     resetAuthFields();
     toast.success(t("loginSuccess"));
@@ -103,16 +105,14 @@ export default function Navbar() {
       toast.error(t("passwordsMatch"));
       return;
     }
-    localStorage.setItem("token", "local-session");
-    setIsLoggedIn(true);
+    login();
     setShowRegister(false);
     resetAuthFields();
     toast.success(t("registerSuccess"));
   }
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
+    logout();
     toast.success(t("logoutSuccess"));
   }
 

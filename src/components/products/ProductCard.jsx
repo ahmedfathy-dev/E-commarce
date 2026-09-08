@@ -7,12 +7,14 @@ import { useWishlist } from "../../context/WishlistContext";
 import ProductRating from "./ProductRating";
 import ProductBadge from "./ProductBadge";
 import { useLanguage } from "../../context/LanguageContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProductCard({ product, index = 0, reveal = true }) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
   const { t, categoryName } = useLanguage();
+  const { isLoggedIn, requestLogin } = useAuth();
 
   if (!product) return null;
 
@@ -101,6 +103,10 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
           type="button"
           onClick={(event) => {
             event.stopPropagation();
+            if (!isLoggedIn) {
+              requestLogin();
+              return;
+            }
             addToCart(product);
             toast.success(t("addedCart"));
           }}
