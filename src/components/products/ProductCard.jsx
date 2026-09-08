@@ -6,13 +6,13 @@ import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import ProductRating from "./ProductRating";
 import ProductBadge from "./ProductBadge";
-
-const FALLBACK_COLORS = ["#ffffff", "#111111", "#c9d6df", "#f3e2b0"];
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function ProductCard({ product, index = 0, reveal = true }) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
+  const { t, categoryName } = useLanguage();
 
   if (!product) return null;
 
@@ -23,13 +23,12 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
   const discount = Number(product.discountPercentage) || 0;
   const oldPrice = discount > 0 ? price / (1 - discount / 100) : null;
   const rating = product.rating ?? 0;
-  const colors = FALLBACK_COLORS;
   const onSale = discount > 0;
   const wished = isWishlisted(product.id);
 
   return (
     <article
-      className={`group flex h-full flex-col overflow-hidden rounded-lg border border-[#ededed] bg-white transition duration-300 hover:-translate-y-1 ${
+      className={`group flex h-full flex-col overflow-hidden rounded-lg border-[0.5px] border-[#f0f0f0] bg-white transition duration-300 hover:-translate-y-1 ${
         reveal ? "product-reveal" : ""
       }`}
       style={reveal ? { animationDelay: `${index * 90}ms` } : undefined}
@@ -39,7 +38,7 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
           type="button"
           className="block h-full w-full"
           onClick={() => navigate(`/product/${product.id}`)}
-          aria-label={`View ${title}`}
+          aria-label={`${t("shop")} ${title}`}
         >
           <img
             src={image}
@@ -50,13 +49,13 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
 
         {onSale && (
           <div className="absolute left-3 top-3 z-10">
-            <ProductBadge>-{discount.toFixed(0)}% off</ProductBadge>
+            <ProductBadge>-{discount.toFixed(0)}% {t("off")}</ProductBadge>
           </div>
         )}
 
         <button
           type="button"
-          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={wished ? t("removeWishlist") : t("addWishlist")}
           onClick={(event) => {
             event.stopPropagation();
             toggleWishlist(product.id);
@@ -93,19 +92,9 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
         </p>
 
         <p className="mt-2 line-clamp-1 text-xs capitalize text-neutral-400">
-          {product.brand ? `${product.brand} · ` : ""}{product.category}
-          {product.stock != null ? ` · ${product.stock} in stock` : ""}
+          {product.brand ? `${product.brand} · ` : ""}{categoryName(product.category)}
+          {product.stock != null ? ` · ${product.stock} ${t("inStock")}` : ""}
         </p>
-
-        <div className="mt-3 flex items-center gap-1.5">
-          {colors.slice(0, 5).map((color) => (
-            <span
-              key={color}
-              className="h-3.5 w-3.5 rounded-full border border-neutral-200"
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        </div>
 
         <div className="mt-auto pt-4">
         <button
@@ -113,12 +102,12 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
           onClick={(event) => {
             event.stopPropagation();
             addToCart(product);
-            toast.success("Added to cart");
+            toast.success(t("addedCart"));
           }}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-neutral-900 py-2.5 text-sm font-medium text-white transition duration-300 hover:bg-black hover:opacity-90 active:scale-[0.99]"
+          className="flex w-full items-center justify-center gap-2 rounded-md border-[0.5px] border-neutral-900 bg-neutral-900 py-2.5 text-sm font-medium text-white transition duration-300 hover:bg-black hover:opacity-90 active:scale-[0.99]"
         >
           <BsCart3 className="text-sm" />
-          Add Item
+          {t("addItem")}
         </button>
         </div>
       </div>

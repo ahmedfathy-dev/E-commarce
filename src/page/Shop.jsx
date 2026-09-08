@@ -4,11 +4,13 @@ import { useProducts } from "../context/ProductsContext";
 import { searchProducts } from "../services/products";
 import ProductGrid from "../components/products/ProductGrid";
 import Footer from "./Footer";
+import { useLanguage } from "../context/LanguageContext";
 
 function Shop() {
   const [params] = useSearchParams();
   const query = params.get("q") || "";
   const { products, loading: catalogLoading, error: catalogError } = useProducts();
+  const { t } = useLanguage();
   const [items, setItems] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
@@ -42,11 +44,11 @@ function Shop() {
       <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:px-12">
         <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">Shop</h1>
         <p className="mt-2 mb-8 text-sm text-neutral-500">
-          {query ? `Results for “${query}”` : "The full catalog, ready to wear."}
+          {query ? `${t("resultsFor")} “${query}”` : t("fullCatalog")}
         </p>
         {query && (
           <Link to="/shop" className="mb-8 inline-block text-sm text-neutral-500 hover:text-neutral-900">
-            Clear search
+            {t("clearSearch")}
           </Link>
         )}
         <ProductGrid products={items} loading={loading} error={error} />

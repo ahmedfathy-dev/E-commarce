@@ -1,19 +1,21 @@
 import ProductCard from "./ProductCard";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function ProductGrid({ products = [], className = "", loading = false, error = "" }) {
+  const { t } = useLanguage();
   const items = Array.isArray(products) ? products.filter(Boolean) : [];
 
   if (loading) {
-    return <p className="py-16 text-center text-sm text-neutral-400">Loading products...</p>;
+    return <p className="py-16 text-center text-sm text-neutral-400">{t("loadingProducts")}</p>;
   }
 
   if (error) {
-    return <p className="py-16 text-center text-sm text-neutral-500">{error}</p>;
+    return <p className="py-16 text-center text-sm text-neutral-500">{error || t("loadError")}</p>;
   }
 
   if (items.length === 0) {
     return (
-      <p className="py-16 text-center text-sm text-neutral-400">No products found.</p>
+      <p className="py-16 text-center text-sm text-neutral-400">{t("noProducts")}</p>
     );
   }
 

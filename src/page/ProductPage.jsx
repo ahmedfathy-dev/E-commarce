@@ -9,12 +9,14 @@ import { fetchProductById } from "../services/products";
 import ProductRating from "../components/products/ProductRating";
 import ProductBadge from "../components/products/ProductBadge";
 import Footer from "./Footer";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
+  const { t, categoryName } = useLanguage();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,12 +38,12 @@ export default function ProductPage() {
   }, [id]);
 
   if (loading) {
-    return <h1 className="mt-24 text-center text-2xl text-neutral-400">Loading product...</h1>;
+    return <h1 className="mt-24 text-center text-2xl text-neutral-400">{t("loadingProduct")}</h1>;
   }
 
   if (error || !product) {
     return (
-      <h1 className="mt-24 text-center text-2xl text-neutral-400">Product not found</h1>
+      <h1 className="mt-24 text-center text-2xl text-neutral-400">{t("productNotFound")}</h1>
     );
   }
 
@@ -53,7 +55,7 @@ export default function ProductPage() {
 
   function handleAddToCart() {
     addToCart(product, quantity);
-    toast.success("Added to cart");
+    toast.success(t("addedCart"));
   }
 
   return (
@@ -65,14 +67,14 @@ export default function ProductPage() {
             onClick={() => navigate(-1)}
             className="mb-8 text-sm text-neutral-400 transition hover:text-neutral-900"
           >
-            ← Back
+            ← {t("back")}
           </button>
 
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-            <div className="relative overflow-hidden rounded-lg border border-[#ededed] bg-neutral-50">
+            <div className="relative overflow-hidden rounded-lg border-[0.5px] border-[#ededed] bg-neutral-50">
               {onSale && (
                 <div className="absolute left-4 top-4 z-10">
-                  <ProductBadge>-{discount.toFixed(0)}% off</ProductBadge>
+                  <ProductBadge>-{discount.toFixed(0)}% {t("off")}</ProductBadge>
                 </div>
               )}
               <img
@@ -84,7 +86,7 @@ export default function ProductPage() {
 
             <div className="flex flex-col justify-center">
               <p className="text-xs tracking-[0.2em] text-neutral-400 uppercase">
-                {product.category}
+                {categoryName(product.category)}
               </p>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
                 {title}
@@ -107,11 +109,11 @@ export default function ProductPage() {
               </p>
 
               <p className="mt-6 text-sm text-neutral-500">
-                {product.brand ? `${product.brand} · ` : ""}{product.stock} in stock
+                {product.brand ? `${product.brand} · ` : ""}{product.stock} {t("inStock")}
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <div className="flex items-center overflow-hidden rounded-md border border-[#ededed]">
+                <div className="flex items-center overflow-hidden rounded-md border-[0.5px] border-[#ededed]">
                   <button
                     type="button"
                     onClick={() => setQuantity((value) => Math.max(1, value - 1))}
@@ -133,12 +135,12 @@ export default function ProductPage() {
                   onClick={handleAddToCart}
                   className="flex flex-1 items-center justify-center gap-2 rounded-md bg-neutral-900 py-3 text-sm font-medium text-white transition hover:opacity-90"
                 >
-                  <BsCart3 /> Add Item
+                  <BsCart3 /> {t("addItem")}
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleWishlist(product.id)}
-                  className="flex h-12 w-12 items-center justify-center rounded-md border border-[#ededed]"
+                  className="flex h-12 w-12 items-center justify-center rounded-md border-[0.5px] border-[#ededed]"
                   aria-label="Wishlist"
                 >
                   <FiHeart className={isWishlisted(product.id) ? "fill-neutral-900" : ""} />

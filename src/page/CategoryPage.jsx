@@ -4,15 +4,17 @@ import { useProducts } from "../context/ProductsContext";
 import { fetchProductsByCategory } from "../services/products";
 import ProductGrid from "../components/products/ProductGrid";
 import Footer from "./Footer";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function CategoryPage() {
   const { id } = useParams();
   const { categories } = useProducts();
+  const { t, categoryName } = useLanguage();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const category = categories.find((item) => item.slug === id);
-  const categoryName = category?.name || "Category";
+  const categoryTitle = categoryName(id, category?.name || t("category"));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -32,21 +34,21 @@ export default function CategoryPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:px-12">
-        <p className="text-xs tracking-[0.2em] text-neutral-400 uppercase">Category</p>
+        <p className="text-xs tracking-[0.2em] text-neutral-400 uppercase">{t("category")}</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
-          {categoryName}
+          {categoryTitle}
         </h1>
         <p className="mt-2 mb-8 text-sm text-neutral-500">
-          {category?.line || "Explore our latest collection"}
+          {t("exploreCollection")}
         </p>
 
         {loading || error ? (
           <ProductGrid products={items} loading={loading} error={error} />
         ) : items.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-neutral-400">No products found</p>
+            <p className="text-neutral-400">{t("noProducts")}</p>
             <Link to="/shop" className="mt-4 inline-block text-sm text-neutral-900 underline">
-              Back to shop
+              {t("shop")}
             </Link>
           </div>
         ) : (

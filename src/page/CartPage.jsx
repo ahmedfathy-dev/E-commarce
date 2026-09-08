@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart, totalItems } = useCart();
+  const { t } = useLanguage();
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
@@ -11,7 +13,7 @@ export default function CartPage() {
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:px-12">
         <div className="mb-2 flex items-end justify-between gap-4">
           <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
-            Your cart
+            {t("cart")}
           </h1>
           {cart.length > 0 && (
             <button
@@ -19,22 +21,22 @@ export default function CartPage() {
               onClick={clearCart}
               className="text-sm text-neutral-400 transition hover:text-neutral-900"
             >
-              Clear all
+              {t("clearAll")}
             </button>
           )}
         </div>
         <p className="mb-10 text-sm text-neutral-400">
-          {totalItems} item{totalItems !== 1 ? "s" : ""}
+          {totalItems} {totalItems === 1 ? t("item") : t("items")}
         </p>
 
         {cart.length === 0 ? (
           <div className="py-24 text-center">
-            <p className="text-neutral-400">Your cart is empty</p>
+            <p className="text-neutral-400">{t("emptyCart")}</p>
             <Link
               to="/shop"
               className="mt-6 inline-block rounded-md bg-neutral-900 px-6 py-3 text-sm text-white"
             >
-              Continue shopping
+              {t("continueShopping")}
             </Link>
           </div>
         ) : (
@@ -45,7 +47,7 @@ export default function CartPage() {
                   <img
                     src={item.thumbnail || item.images?.[0]}
                     alt={item.title}
-                    className="h-24 w-20 rounded-md border border-[#ededed] object-cover"
+                    className="h-24 w-20 rounded-md border-[0.5px] border-[#ededed] object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <h3 className="font-medium text-neutral-900">{item.title}</h3>
@@ -68,28 +70,28 @@ export default function CartPage() {
               ))}
             </div>
 
-            <div className="h-fit rounded-lg border border-[#ededed] p-6 lg:w-[320px]">
-              <h2 className="text-lg font-semibold">Order summary</h2>
+            <div className="h-fit rounded-lg border-[0.5px] border-[#ededed] p-6 lg:w-[320px]">
+              <h2 className="text-lg font-semibold">{t("orderSummary")}</h2>
               <div className="mt-5 flex justify-between text-sm text-neutral-500">
                 <span>Items ({totalItems})</span>
                 <span>${total.toFixed(2)}</span>
               </div>
               <div className="mt-3 flex justify-between text-sm text-neutral-500">
-                <span>Shipping</span>
-                <span>Free</span>
+                <span>{t("shipping")}</span>
+                <span>{t("free")}</span>
               </div>
               <div className="mt-5 flex justify-between border-t border-[#ededed] pt-4 font-semibold">
-                <span>Total</span>
+                <span>{t("total")}</span>
                 <span>${total.toFixed(2)}</span>
               </div>
               <button
                 type="button"
                 className="mt-6 w-full rounded-md bg-neutral-900 py-3 text-sm font-medium text-white transition hover:opacity-90"
               >
-                Checkout
+                {t("checkout")}
               </button>
               <Link to="/shop" className="mt-4 block text-center text-sm text-neutral-400 hover:text-neutral-900">
-                Continue shopping
+                {t("continueShopping")}
               </Link>
             </div>
           </div>

@@ -7,16 +7,19 @@ import { Toaster } from "react-hot-toast";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { ProductsProvider } from "./context/ProductsContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <CartProvider>
-      <WishlistProvider>
-        <ProductsProvider>
-          <App />
-          <Toaster position="top-right" reverseOrder={false} />
-        </ProductsProvider>
-      </WishlistProvider>
-    </CartProvider>
-  </BrowserRouter>
+  <LanguageProvider>
+    <BrowserRouter>
+      <CartProvider>
+        <WishlistProvider>
+          <ProductsProvider>
+            <App />
+            <Toaster position="top-right" reverseOrder={false} />
+          </ProductsProvider>
+        </WishlistProvider>
+      </CartProvider>
+    </BrowserRouter>
+  </LanguageProvider>
 );

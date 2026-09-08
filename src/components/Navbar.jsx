@@ -11,12 +11,13 @@ import { useProducts } from "../context/ProductsContext";
 import { searchProducts } from "../services/products";
 import LoginForm from "./auth/LoginForm";
 import RegisterForm from "./auth/RegisterForm";
+import { useLanguage } from "../context/LanguageContext";
 
 const links = [
-  { to: "/", label: "Home" },
-  { to: "/shop", label: "Shop" },
-  { to: "/collection", label: "Collections" },
-  { to: "/sale", label: "Sale" },
+  { to: "/", key: "home" },
+  { to: "/shop", key: "shop" },
+  { to: "/collection", key: "collections" },
+  { to: "/sale", key: "latestOffers" },
 ];
 
 export default function Navbar() {
@@ -36,6 +37,10 @@ export default function Navbar() {
   const { totalItems } = useCart();
   const { ids } = useWishlist();
   const { categories } = useProducts();
+  const { t, toggleLanguage, language, categoryName } = useLanguage();
+  const brandImage = language === "ar"
+    ? "/لقطة شاشة 2026-09-08 142658.png"
+    : "/لقطة شاشة 2026-09-08 142613.png";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -75,40 +80,40 @@ export default function Navbar() {
   function handleLogin(event) {
     event.preventDefault();
     if (!email || !password) {
-      setAuthError("Please fill in all fields");
-      toast.error("Please fill in all fields");
+      setAuthError(t("fillFields"));
+      toast.error(t("fillFields"));
       return;
     }
     localStorage.setItem("token", "local-session");
     setIsLoggedIn(true);
     setShowLogin(false);
     resetAuthFields();
-    toast.success("Login Success");
+    toast.success(t("loginSuccess"));
   }
 
   function handleRegister(event) {
     event.preventDefault();
     if (!name || !email || !password || !confirmPassword) {
-      setAuthError("Please fill in all fields");
-      toast.error("Please fill in all fields");
+      setAuthError(t("fillFields"));
+      toast.error(t("fillFields"));
       return;
     }
     if (password !== confirmPassword) {
-      setAuthError("Passwords do not match");
-      toast.error("Passwords do not match");
+      setAuthError(t("passwordsMatch"));
+      toast.error(t("passwordsMatch"));
       return;
     }
     localStorage.setItem("token", "local-session");
     setIsLoggedIn(true);
     setShowRegister(false);
     resetAuthFields();
-    toast.success("Register Success");
+    toast.success(t("registerSuccess"));
   }
 
   function handleLogout() {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    toast.success("Logout Success");
+    toast.success(t("logoutSuccess"));
   }
 
   function submitSearch(event) {
@@ -130,12 +135,12 @@ export default function Navbar() {
  rounded-xl border border-[#ededed] bg-white md:grid-cols-2">
             <div
               className="relative hidden min-h-[90vh] md:block"
-              style={{ backgroundImage: "url('/c.jpg')", backgroundSize: "cover",  backgroundPosition: "center" }}
+              style={{ backgroundImage: "url('/r7.jpg?v=2')", backgroundSize: "cover",  backgroundPosition: "center" }}
             >
               <div className="absolute inset-0 bg-black/25" />
               <div className="absolute bottom-8 left-8 right-8 text-white">
-                <p className="text-xs tracking-[0.25em] uppercase">HARER</p>
-                <h3 className="mt-3 text-4xl font-semibold">Define your style</h3>
+                <img src={brandImage} alt={t("brand")} className="h-11 w-auto object-contain brightness-0 invert mix-blend-screen" />
+                  <h3 className="mt-3 text-4xl font-semibold">{t("heroTitle")}</h3>
               </div>
             </div>
             {showLogin ? (
@@ -184,28 +189,34 @@ export default function Navbar() {
       )}
 
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-        <Link to="/" className="text-lg font-semibold tracking-[0.18em] text-neutral-900">
-          HARER
+        <Link to="/" className="block" aria-label={t("brand")}>
+          <span className="relative block h-8 w-24 overflow-hidden" aria-hidden="true">
+            <img
+              src={brandImage}
+              alt={t("brand")}
+              className="absolute left-1/2 top-1/2 h-32 w-32 max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+            />
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">
           {links.map((link) => (
             <NavLink key={link.to} to={link.to} className={linkClass} end={link.to === "/"}>
-              {link.label}
+              {t(link.key)}
             </NavLink>
           ))}
           <div className="group relative">
             <button type="button" className="text-sm text-neutral-500 hover:text-neutral-900">
-              Categories
+              {t("categories")}
             </button>
-            <div className="invisible absolute left-0 top-full z-50 min-w-44 rounded-lg border border-[#ededed] bg-white py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100">
+            <div className="invisible absolute left-0 top-full z-50 max-h-80 min-w-44 overflow-y-auto rounded-lg border border-[#ededed] bg-white py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100">
               {categories.map((category) => (
                 <Link
                   key={category.slug}
                   to={`/category/${category.slug}`}
                   className="block px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                 >
-                  {category.name}
+                  {categoryName(category.slug, category.name)}
                 </Link>
               ))}
             </div>
@@ -213,10 +224,10 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4 text-neutral-800">
-          <button type="button" aria-label="Search" onClick={() => setSearchOpen((open) => !open)}>
+          <button type="button" aria-label={t("search")} onClick={() => setSearchOpen((open) => !open)}>
             <FiSearch className="text-lg" />
           </button>
-          <Link to="/wishlist" aria-label="Wishlist" className="relative hidden sm:block">
+          <Link to="/wishlist" aria-label={t("wishlist")} className="relative hidden sm:block">
             <FiHeart className="text-lg" />
             {ids.length > 0 && (
               <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-900 text-[10px] text-white">
@@ -224,7 +235,7 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-          <Link to="/cart" aria-label="Cart" className="relative">
+          <Link to="/cart" aria-label={t("cart")} className="relative">
             <BsCart3 className="text-lg" />
             {totalItems > 0 && (
               <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-900 text-[10px] text-white">
@@ -233,16 +244,19 @@ export default function Navbar() {
             )}
           </Link>
           {!isLoggedIn ? (
-            <button type="button" aria-label="Account" onClick={() => setShowLogin(true)}>
+            <button type="button" aria-label={t("account")} onClick={() => setShowLogin(true)}>
               <FiUser className="text-lg" />
             </button>
           ) : (
             <button type="button" onClick={handleLogout} className="hidden text-sm text-neutral-500 sm:block">
-              Logout
+              {t("logout")}
             </button>
           )}
           <button type="button" className="lg:hidden" onClick={() => setMenuOpen((open) => !open)}>
             {menuOpen ? <IoClose className="text-2xl" /> : <HiMenuAlt3 className="text-2xl" />}
+          </button>
+          <button type="button" onClick={toggleLanguage} className="text-xs font-medium text-neutral-500 hover:text-neutral-900" aria-label={t("language")}>
+            {language === "en" ? "AR" : "EN"}
           </button>
         </div>
       </div>
@@ -255,7 +269,7 @@ export default function Navbar() {
               autoFocus
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search products"
+              placeholder={t("search")}
               className="w-full bg-transparent text-sm outline-none"
             />
           </form>
@@ -278,18 +292,18 @@ export default function Navbar() {
       )}
 
       {menuOpen && (
-        <div className="border-t border-[#ededed] bg-white px-5 py-6 lg:hidden">
+        <div className="max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-[#ededed] bg-white px-5 py-6 lg:hidden">
           <div className="flex flex-col gap-4 text-sm">
             {links.map((link) => (
-              <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)}>
-                {link.label}
+                <Link key={link.to} to={link.to} onClick={() => setMenuOpen(false)}>
+                {t(link.key)}
               </Link>
             ))}
-            <Link to="/Book" onClick={() => setMenuOpen(false)}>Lookbook</Link>
-            <Link to="/wishlist" onClick={() => setMenuOpen(false)}>Wishlist</Link>
+            <Link to="/Book" onClick={() => setMenuOpen(false)}>{t("lookbook")}</Link>
+            <Link to="/wishlist" onClick={() => setMenuOpen(false)}>{t("wishlist")}</Link>
             {categories.map((category) => (
               <Link key={category.slug} to={`/category/${category.slug}`} onClick={() => setMenuOpen(false)} className="text-neutral-500">
-                {category.name}
+                {categoryName(category.slug, category.name)}
               </Link>
             ))}
             {!isLoggedIn ? (
@@ -299,13 +313,13 @@ export default function Navbar() {
                   setShowLogin(true);
                   setMenuOpen(false);
                 }}
-                className="rounded-md border border-[#ededed] py-2"
-              >
-                Login
+                className="rounded-md border-[0.5px] border-[#ededed] py-2"
+                >
+                {t("login")}
               </button>
             ) : (
               <button type="button" onClick={handleLogout} className="rounded-md bg-neutral-900 py-2 text-white">
-                Logout
+                {t("logout")}
               </button>
             )}
           </div>
