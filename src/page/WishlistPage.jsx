@@ -1,4 +1,4 @@
-import { products } from "../data/products";
+import { useProducts } from "../context/ProductsContext";
 import { useWishlist } from "../context/WishlistContext";
 import ProductGrid from "../components/products/ProductGrid";
 import Footer from "./Footer";
@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 export default function WishlistPage() {
   const { ids } = useWishlist();
+  const { products, loading, error } = useProducts();
   const items = products.filter((item) => ids.includes(item.id));
 
   return (
@@ -15,7 +16,9 @@ export default function WishlistPage() {
           Wishlist
         </h1>
         <p className="mt-2 mb-8 text-sm text-neutral-500">Saved pieces.</p>
-        {items.length === 0 ? (
+        {loading || error ? (
+          <ProductGrid products={items} loading={loading} error={error} />
+        ) : items.length === 0 ? (
           <div className="py-20 text-center">
             <p className="text-neutral-400">Your wishlist is empty</p>
             <Link to="/shop" className="mt-6 inline-block rounded-md bg-neutral-900 px-6 py-3 text-sm text-white">

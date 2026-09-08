@@ -1,12 +1,41 @@
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { products, searchProducts } from "../data/products";
+import { useProducts } from "../context/ProductsContext";
+import { searchProducts } from "../services/products";
 import ProductGrid from "../components/products/ProductGrid";
 import Footer from "./Footer";
 
 function Shop() {
   const [params] = useSearchParams();
   const query = params.get("q") || "";
-  const items = query ? searchProducts(query) : products;
+  const { products, loading: catalogLoading, error: catalogError } = useProducts();
+  const [items, setItems] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
+
+  useEffect(() => {
+    if (!query) {
+      setItems(products);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    setSearchLoading(true);
+    setSearchError("");
+    searchProducts(query, controller.signal)
+      .then(setItems)
+      .catch((requestError) => {
+        if (requestError.name !== "AbortError") setSearchError("Search is unavailable right now.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setSearchLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [query, products]);
+
+  const loading = query ? searchLoading : catalogLoading;
+  const error = query ? searchError : catalogError;
 
   return (
     <div className="min-h-screen bg-white">
@@ -20,7 +49,7 @@ function Shop() {
             Clear search
           </Link>
         )}
-        <ProductGrid products={items} />
+        <ProductGrid products={items} loading={loading} error={error} />
       </section>
       <Footer />
     </div>

@@ -1,7 +1,15 @@
 import ProductCard from "./ProductCard";
 
-export default function ProductGrid({ products = [], className = "" }) {
+export default function ProductGrid({ products = [], className = "", loading = false, error = "" }) {
   const items = Array.isArray(products) ? products.filter(Boolean) : [];
+
+  if (loading) {
+    return <p className="py-16 text-center text-sm text-neutral-400">Loading products...</p>;
+  }
+
+  if (error) {
+    return <p className="py-16 text-center text-sm text-neutral-500">{error}</p>;
+  }
 
   if (items.length === 0) {
     return (

@@ -43,12 +43,12 @@ export default function CartPage() {
               {cart.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 py-5">
                   <img
-                    src={item.image}
-                    alt={item.name || item.title}
+                    src={item.thumbnail || item.images?.[0]}
+                    alt={item.title}
                     className="h-24 w-20 rounded-md border border-[#ededed] object-cover"
                   />
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-medium text-neutral-900">{item.name || item.title}</h3>
+                    <h3 className="font-medium text-neutral-900">{item.title}</h3>
                     <p className="mt-1 text-sm text-neutral-400">
                       ${Number(item.price).toFixed(2)} × {item.quantity}
                     </p>

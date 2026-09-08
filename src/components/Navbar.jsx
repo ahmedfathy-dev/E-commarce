@@ -7,7 +7,8 @@ import { BsCart3 } from "react-icons/bs";
 import { FiHeart, FiSearch, FiUser } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { categories, searchProducts } from "../data/products";
+import { useProducts } from "../context/ProductsContext";
+import { searchProducts } from "../services/products";
 import LoginForm from "./auth/LoginForm";
 import RegisterForm from "./auth/RegisterForm";
 
@@ -31,14 +32,37 @@ export default function Navbar() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [results, setResults] = useState([]);
   const { totalItems } = useCart();
   const { ids } = useWishlist();
-  const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
+  const { categories } = useProducts();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) setIsLoggedIn(true);
   }, []);
+
+  useEffect(() => {
+    const value = query.trim();
+    if (!value) {
+      setResults([]);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      searchProducts(value, controller.signal)
+        .then((items) => setResults(items.slice(0, 6)))
+        .catch((requestError) => {
+          if (requestError.name !== "AbortError") setResults([]);
+        });
+    }, 400);
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [query]);
 
   function resetAuthFields() {
     setName("");
@@ -101,7 +125,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#ededed] bg-white">
       {(showLogin || showRegister) && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4">
+        <div className="fixed inset-0 z-80 flex items-center justify-center bg-black/40 p-4">
           <div className="grid max-h-[90vh] w-full max-w-4xl overflow-hidden scrollbar-none
  rounded-xl border border-[#ededed] bg-white md:grid-cols-2">
             <div
@@ -177,8 +201,8 @@ export default function Navbar() {
             <div className="invisible absolute left-0 top-full z-50 min-w-44 rounded-lg border border-[#ededed] bg-white py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100">
               {categories.map((category) => (
                 <Link
-                  key={category.id}
-                  to={`/category/${category.id}`}
+                  key={category.slug}
+                  to={`/category/${category.slug}`}
                   className="block px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                 >
                   {category.name}
@@ -244,8 +268,8 @@ export default function Navbar() {
                   onClick={() => setSearchOpen(false)}
                   className="flex items-center gap-3 py-2 text-sm text-neutral-600 hover:text-neutral-900"
                 >
-                  <img src={item.image} alt="" className="h-10 w-10 rounded object-cover" />
-                  {item.name}
+                  <img src={item.thumbnail} alt="" className="h-10 w-10 rounded object-cover" />
+                  {item.title}
                 </Link>
               ))}
             </div>
@@ -264,7 +288,7 @@ export default function Navbar() {
             <Link to="/Book" onClick={() => setMenuOpen(false)}>Lookbook</Link>
             <Link to="/wishlist" onClick={() => setMenuOpen(false)}>Wishlist</Link>
             {categories.map((category) => (
-              <Link key={category.id} to={`/category/${category.id}`} onClick={() => setMenuOpen(false)} className="text-neutral-500">
+              <Link key={category.slug} to={`/category/${category.slug}`} onClick={() => setMenuOpen(false)} className="text-neutral-500">
                 {category.name}
               </Link>
             ))}

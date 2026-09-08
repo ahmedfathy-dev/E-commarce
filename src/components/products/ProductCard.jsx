@@ -16,16 +16,15 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
 
   if (!product) return null;
 
-  const title = product.name || product.title || "Untitled";
-  const image = product.image || product.images?.[0] || "/ss.jpg";
+  const title = product.title || "Untitled";
+  const image = product.thumbnail || product.images?.[0] || "/ss.jpg";
   const description = product.description || "Premium fashion essential.";
   const price = Number(product.price);
-  const oldPrice = product.oldPrice != null ? Number(product.oldPrice) : null;
-  const rating = product.rating ?? 4.8;
-  const colors = Array.isArray(product.colors) && product.colors.length
-    ? product.colors
-    : FALLBACK_COLORS;
-  const onSale = Boolean(product.discount || (oldPrice && oldPrice > price));
+  const discount = Number(product.discountPercentage) || 0;
+  const oldPrice = discount > 0 ? price / (1 - discount / 100) : null;
+  const rating = product.rating ?? 0;
+  const colors = FALLBACK_COLORS;
+  const onSale = discount > 0;
   const wished = isWishlisted(product.id);
 
   return (
@@ -35,7 +34,7 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
       }`}
       style={reveal ? { animationDelay: `${index * 90}ms` } : undefined}
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
+      <div className="relative aspect-[0.8] overflow-hidden bg-neutral-100">
         <button
           type="button"
           className="block h-full w-full"
@@ -51,7 +50,7 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
 
         {onSale && (
           <div className="absolute left-3 top-3 z-10">
-            <ProductBadge>Sale</ProductBadge>
+            <ProductBadge>-{discount.toFixed(0)}% off</ProductBadge>
           </div>
         )}
 
@@ -91,6 +90,11 @@ export default function ProductCard({ product, index = 0, reveal = true }) {
 
         <p className="mt-1 line-clamp-1 text-[13px] text-neutral-400">
           {description}
+        </p>
+
+        <p className="mt-2 line-clamp-1 text-xs capitalize text-neutral-400">
+          {product.brand ? `${product.brand} · ` : ""}{product.category}
+          {product.stock != null ? ` · ${product.stock} in stock` : ""}
         </p>
 
         <div className="mt-3 flex items-center gap-1.5">

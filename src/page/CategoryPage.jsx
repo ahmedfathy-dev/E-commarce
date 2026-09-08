@@ -1,13 +1,33 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { categories, getProductsByCategory } from "../data/products";
+import { useProducts } from "../context/ProductsContext";
+import { fetchProductsByCategory } from "../services/products";
 import ProductGrid from "../components/products/ProductGrid";
 import Footer from "./Footer";
 
 export default function CategoryPage() {
   const { id } = useParams();
-  const category = categories.find((item) => item.id === id);
-  const items = getProductsByCategory(id);
+  const { categories } = useProducts();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const category = categories.find((item) => item.slug === id);
   const categoryName = category?.name || "Category";
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+    fetchProductsByCategory(id, controller.signal)
+      .then(setItems)
+      .catch((requestError) => {
+        if (requestError.name !== "AbortError") setError("We could not load this category.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [id]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -20,7 +40,9 @@ export default function CategoryPage() {
           {category?.line || "Explore our latest collection"}
         </p>
 
-        {items.length === 0 ? (
+        {loading || error ? (
+          <ProductGrid products={items} loading={loading} error={error} />
+        ) : items.length === 0 ? (
           <div className="py-20 text-center">
             <p className="text-neutral-400">No products found</p>
             <Link to="/shop" className="mt-4 inline-block text-sm text-neutral-900 underline">

@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { BsCart3 } from "react-icons/bs";
 import { FiHeart } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { getProductById } from "../data/products";
+import { fetchProductById } from "../services/products";
 import ProductRating from "../components/products/ProductRating";
 import ProductBadge from "../components/products/ProductBadge";
 import Footer from "./Footer";
@@ -15,19 +15,41 @@ export default function ProductPage() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
-  const product = getProductById(id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [colorIndex, setColorIndex] = useState(0);
 
-  if (!product) {
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+    fetchProductById(id, controller.signal)
+      .then(setProduct)
+      .catch((requestError) => {
+        if (requestError.name !== "AbortError") setError("Product not found");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [id]);
+
+  if (loading) {
+    return <h1 className="mt-24 text-center text-2xl text-neutral-400">Loading product...</h1>;
+  }
+
+  if (error || !product) {
     return (
       <h1 className="mt-24 text-center text-2xl text-neutral-400">Product not found</h1>
     );
   }
 
-  const title = product.name || product.title;
-  const colors = product.colors || [];
-  const onSale = Boolean(product.discount || product.oldPrice);
+  const title = product.title;
+  const image = product.thumbnail || product.images?.[0];
+  const discount = Number(product.discountPercentage) || 0;
+  const oldPrice = discount > 0 ? product.price / (1 - discount / 100) : null;
+  const onSale = discount > 0;
 
   function handleAddToCart() {
     addToCart(product, quantity);
@@ -50,13 +72,13 @@ export default function ProductPage() {
             <div className="relative overflow-hidden rounded-lg border border-[#ededed] bg-neutral-50">
               {onSale && (
                 <div className="absolute left-4 top-4 z-10">
-                  <ProductBadge>Sale</ProductBadge>
+                  <ProductBadge>-{discount.toFixed(0)}% off</ProductBadge>
                 </div>
               )}
               <img
-                src={product.image}
+                src={image}
                 alt={title}
-                className="aspect-[4/5] w-full object-cover"
+                className="aspect-[0.8] w-full object-cover"
               />
             </div>
 
@@ -74,9 +96,9 @@ export default function ProductPage() {
                 <span className="text-2xl font-semibold text-neutral-900">
                   ${Number(product.price).toFixed(2)}
                 </span>
-                {product.oldPrice && (
+                {oldPrice && (
                   <span className="text-neutral-400 line-through">
-                    ${Number(product.oldPrice).toFixed(2)}
+                    ${oldPrice.toFixed(2)}
                   </span>
                 )}
               </div>
@@ -84,22 +106,9 @@ export default function ProductPage() {
                 {product.description}
               </p>
 
-              {colors.length > 0 && (
-                <div className="mt-6 flex gap-2">
-                  {colors.map((color, index) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setColorIndex(index)}
-                      className={`h-5 w-5 rounded-full border ${
-                        colorIndex === index ? "border-neutral-900" : "border-neutral-200"
-                      }`}
-                      style={{ backgroundColor: color }}
-                      aria-label={`Color ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
+              <p className="mt-6 text-sm text-neutral-500">
+                {product.brand ? `${product.brand} · ` : ""}{product.stock} in stock
+              </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <div className="flex items-center overflow-hidden rounded-md border border-[#ededed]">

@@ -6,13 +6,16 @@ import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
+import { ProductsProvider } from "./context/ProductsContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <CartProvider>
       <WishlistProvider>
-        <App />
-        <Toaster position="top-right" reverseOrder={false} />
+        <ProductsProvider>
+          <App />
+          <Toaster position="top-right" reverseOrder={false} />
+        </ProductsProvider>
       </WishlistProvider>
     </CartProvider>
   </BrowserRouter>
