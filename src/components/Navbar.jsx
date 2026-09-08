@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { HiMenuAlt3 } from "react-icons/hi";
@@ -34,6 +34,8 @@ export default function Navbar() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [results, setResults] = useState([]);
+  const searchButtonRef = useRef(null);
+  const searchPanelRef = useRef(null);
   const { totalItems } = useCart();
   const { ids } = useWishlist();
   const { categories } = useProducts();
@@ -49,6 +51,20 @@ export default function Navbar() {
       clearLoginRequest();
     }
   }, [clearLoginRequest, loginRequested]);
+
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+
+    function closeSearchOnOutsideClick(event) {
+      const target = event.target;
+      if (!searchButtonRef.current?.contains(target) && !searchPanelRef.current?.contains(target)) {
+        setSearchOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", closeSearchOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeSearchOnOutsideClick);
+  }, [searchOpen]);
 
   useEffect(() => {
     const value = query.trim();
@@ -130,16 +146,26 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#ededed] bg-white">
       {(showLogin || showRegister) && (
-        <div className="fixed inset-0 z-80 flex items-center justify-center bg-black/40 p-4">
-          <div className="grid max-h-[90vh] w-full max-w-4xl overflow-hidden scrollbar-none
- rounded-xl border border-[#ededed] bg-white md:grid-cols-2">
+        <div
+          className="fixed inset-0 z-80 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => {
+            setShowLogin(false);
+            setShowRegister(false);
+            resetAuthFields();
+          }}
+        >
+          <div
+            className="grid max-h-[90vh] w-full max-w-4xl overflow-hidden scrollbar-none
+ rounded-xl border border-[#ededed] bg-white md:grid-cols-2"
+            onClick={(event) => event.stopPropagation()}
+          >
             <div
               className="relative hidden min-h-[90vh] md:block"
               style={{ backgroundImage: "url('/r7.jpg?v=2')", backgroundSize: "cover",  backgroundPosition: "center" }}
             >
               <div className="absolute inset-0 bg-black/25" />
               <div className="absolute bottom-8 left-8 right-8 text-white">
-                <img src={brandImage} alt={t("brand")} className="h-11 w-auto object-contain brightness-0 invert mix-blend-screen" />
+                <img src={brandImage} alt={t("brand")} className="h-11 w-auto object-contain invert mix-blend-screen" />
                   <h3 className="mt-3 text-4xl font-semibold">{t("heroTitle")}</h3>
               </div>
             </div>
@@ -224,7 +250,12 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4 text-neutral-800">
-          <button type="button" aria-label={t("search")} onClick={() => setSearchOpen((open) => !open)}>
+          <button
+            ref={searchButtonRef}
+            type="button"
+            aria-label={t("search")}
+            onClick={() => setSearchOpen((open) => !open)}
+          >
             <FiSearch className="text-lg" />
           </button>
           <Link to="/wishlist" aria-label={t("wishlist")} className="relative hidden sm:block">
@@ -262,7 +293,7 @@ export default function Navbar() {
       </div>
 
       {searchOpen && (
-        <div className="border-t border-[#ededed] bg-white">
+        <div ref={searchPanelRef} className="border-t border-[#ededed] bg-white">
           <form onSubmit={submitSearch} className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3 sm:px-8">
             <FiSearch className="text-neutral-400" />
             <input
